@@ -1,0 +1,30 @@
+.shorts-panel {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.short-card {
+  background: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+}
+
+.shorts-header-sticky {
+  color: #5a78a7;
+}
+
+.short-header {
+  color: #333;
+}
+
+.short-caption {
+  color: #555;
+}
+
+.short-actions {
+  color: #5a78a7;
+}

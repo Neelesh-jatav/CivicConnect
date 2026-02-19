@@ -1,0 +1,37 @@
+.impact-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  color: #333;
+  text-align: center;
+}
+
+.impact-card h3 {
+  margin-top: 0;
+  color: #5a78a7;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.impact-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 2em;
+  font-weight: bold;
+  color: #3d5a80;
+}
+
+.stat-label {
+  font-size: 0.9em;
+  color: #5a78a7;
+}

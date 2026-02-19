@@ -1,0 +1,15 @@
+import express from 'express';
+import { getActiveAds, createAd, trackImpression, trackClick, getAllAds } from '../controllers/adController.js';
+import { isAuthenticatedUser, authorizeRoles } from '../middlewares/auth.js';
+import { upload } from '../utils/multer.js';
+
+const router = express.Router();
+const isAdmin = [isAuthenticatedUser, authorizeRoles('admin')];
+
+router.get("/ads", getActiveAds);
+router.post("/admin/ads", isAdmin, upload.single("image"), createAd);
+router.get("/admin/ads", isAdmin, getAllAds);
+router.post("/ads/:id/impression", trackImpression);
+router.post("/ads/:id/click", trackClick);
+
+export default router;

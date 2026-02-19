@@ -1,0 +1,124 @@
+/* ===== AUTH PAGE ===== */
+.auth-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #dbeafe, #ecfeff, #fefce8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter", sans-serif;
+}
+
+/* Glass Card */
+.auth-card {
+  width: 360px;
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+/* Inputs */
+.auth-card input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-muted);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
+}
+
+/* Button */
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #eb3f3f, #dc9920);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-btn:hover {
+  background: linear-gradient(to right, #20b2dc, #ff955f);
+  transform: translateY(-1px);
+}
+
+/* Links */
+.auth-links {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #65a30d;
+  cursor: pointer;
+}
+
+/* Footer */
+.auth-footer {
+  margin-top: 40px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ===== AUTH MODAL FIX ===== */
+.auth-modal {
+  width: auto !important;
+  max-width: 702px !important;
+  padding: 0 !important;
+  border-radius: 18px;
+  overflow: hidden;
+  max-height: unset !important;
+}
+
+/* Prevent modal scrolling */
+.modal-content.auth-modal {
+  overflow: hidden !important;
+}
+
+/* Center auth page inside modal */
+.modal-content.auth-modal .auth-page {
+  min-height: auto !important;
+  padding: 40px 24px;
+  background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+}
+
+/* Resize auth card inside modal */
+.modal-content.auth-modal .auth-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 28px 26px;
+  margin: auto;
+}
+
+/* Hide footer spacing inside modal */
+.modal-content.auth-modal .auth-footer {
+  margin-top: 24px;
+}

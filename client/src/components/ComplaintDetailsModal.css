@@ -1,0 +1,277 @@
+/* ============================= */
+/* COMPLAINT DETAILS PAGE */
+/* ============================= */
+
+.complaint-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.complaint-details-modal {
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  background: #f8fafc;
+  border-radius: 20px;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- HEADER ---------- */
+
+.complaint-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-bottom: 0;
+}
+
+.complaint-details-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2563eb;
+  margin: 0;
+}
+
+.close-btn {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+/* ---------- GRID LAYOUT ---------- */
+
+.complaint-details-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+  padding: 24px;
+}
+
+/* ---------- CARD BASE ---------- */
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+/* ---------- TITLE CARD ---------- */
+
+.title-card {
+  background: linear-gradient(135deg, #2dd4bf, #a3e635);
+  color: #000;
+}
+
+.title-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.title-card .status-pill {
+  display: inline-block;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.title-card .complaint-id {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ---------- ASSIGNMENT ---------- */
+
+.assignment-card h4,
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.assignment-row {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.assignment-row strong {
+  font-weight: 700;
+}
+
+/* ---------- DESCRIPTION ---------- */
+
+.description-card p {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* ---------- LOCATION ---------- */
+
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.location-item strong {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ---------- UPDATE STATUS ---------- */
+
+.update-status textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: none;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 10px 12px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.update-status textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.status-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-accept {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-reject {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ---------- UPLOADED IMAGES ---------- */
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.images-grid img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.images-grid img:hover {
+  transform: scale(1.05);
+}
+
+/* ---------- TIMELINE ---------- */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 12px;
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  background: #2563eb;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.timeline-content {
+  font-size: 13px;
+  color: #374151;
+}
+
+.timeline-content span {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+  .complaint-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dynamic Status Colors */
+.status-pill.status-pending { background: #fee2e2; color: #991b1b; }
+.status-pill.status-in-progress { background: #dbeafe; color: #1e40af; }
+.status-pill.status-resolved { background: #dcfce7; color: #166534; }
+.status-pill.status-rejected { background: #fee2e2; color: #991b1b; }
+.status-pill.status-accepted { background: #e0f2fe; color: #075985; }
+.status-pill.status-allocated-to-department,
+.status-pill.status-allocated-to-officer { background: #e0e7ff; color: #3730a3; }
+.status-pill.status-closed { background: #dcfce7; color: #166534; }

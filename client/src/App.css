@@ -1,0 +1,39 @@
+/* Main Application Styles */
+/* Imports modular styles */
+
+@import "./layout.css";
+@import "./components.css";
+@import "./landing.css";
+@import "./auth.css";
+@import "./admin.css";
+@import "./complaints.css";
+@import "./pages.css";
+
+/* 🔥 FORCE TOAST ABOVE MODALS */
+.Toastify__toast-container {
+  z-index: 999999 !important;
+  position: fixed !important;
+}
+
+.stats-row {
+  display: flex;
+  gap: 16px;
+}
+
+.stats-row > .stats-section {
+  flex: 1;
+}
+
+.home-content-layout {
+  display: flex;
+  gap: 20px; /* Adjust gap as needed */
+}
+
+.home-content-layout > :first-child {
+  flex: 2; /* TrendingIssues takes 2/3 of the space */
+}
+
+.home-content-layout > :last-child {
+  flex: 1; /* HomeMediaShorts takes 1/3 of the space */
+}
+
