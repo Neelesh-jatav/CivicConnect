@@ -32,6 +32,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
   const [cropImage, setCropImage] = useState(null);
   const [cropPosition, setCropPosition] = useState({ x: 0, y: 0 });
   const [cropScale, setCropScale] = useState(1);
+  const [isCropping, setIsCropping] = useState(false);
   const canvasRef = React.useRef(null);
 
   useEffect(() => {
@@ -210,43 +211,68 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
   };
 
   const applyCrop = () => {
-    if (!cropImage || !canvasRef.current) return;
+    if (!cropImage || !canvasRef.current) {
+      toast.error('Error: Unable to process image');
+      return;
+    }
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const image = new Image();
-    
-    image.onload = () => {
-      const size = 200; // Crop to 200x200
-      const scaledWidth = image.width * cropScale;
-      const scaledHeight = image.height * cropScale;
+    setIsCropping(true);
 
-      canvas.width = size;
-      canvas.height = size;
+    setTimeout(() => {
+      try {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        const image = new Image();
+        
+        image.onload = () => {
+          const size = 200; // Crop to 200x200
+          const scaledWidth = image.width * cropScale;
+          const scaledHeight = image.height * cropScale;
 
-      ctx.clearRect(0, 0, size, size);
-      ctx.drawImage(
-        image,
-        cropPosition.x,
-        cropPosition.y,
-        scaledWidth,
-        scaledHeight,
-        0,
-        0,
-        size,
-        size
-      );
+          canvas.width = size;
+          canvas.height = size;
 
-      canvas.toBlob((blob) => {
-        const croppedFile = new File([blob], 'profile-image.png', { type: 'image/png' });
-        setEditAvatar(croppedFile);
-        setEditAvatarPreview(canvas.toDataURL());
-        setShowCropMode(false);
-        setCropImage(null);
-        toast.success('Image cropped successfully!');
-      }, 'image/png');
-    };
-    image.src = cropImage;
+          ctx.clearRect(0, 0, size, size);
+          ctx.drawImage(
+            image,
+            cropPosition.x,
+            cropPosition.y,
+            scaledWidth,
+            scaledHeight,
+            0,
+            0,
+            size,
+            size
+          );
+
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              toast.error('Error: Could not process image');
+              setIsCropping(false);
+              return;
+            }
+            const croppedFile = new File([blob], 'profile-image.png', { type: 'image/png' });
+            setEditAvatar(croppedFile);
+            setEditAvatarPreview(canvas.toDataURL());
+            setShowCropMode(false);
+            setCropImage(null);
+            setIsCropping(false);
+            toast.success('✓ Image cropped successfully!');
+          }, 'image/png');
+        };
+        
+        image.onerror = () => {
+          toast.error('Error: Could not load image');
+          setIsCropping(false);
+        };
+        
+        image.src = cropImage;
+      } catch (error) {
+        console.error('Crop error:', error);
+        toast.error('Error: Could not crop image');
+        setIsCropping(false);
+      }
+    }, 100);
   };
 
   const handleCropDrag = (e) => {
@@ -346,6 +372,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
               <span>{user.email}</span>
             </div>
           </div>
+          {/* Community Shorts removed from Profile (kept on Home) */}
         </div>
       </div>
 
@@ -632,133 +659,208 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
         </div>
       </Modal>
 
-      {/* Image Crop Modal */}
-      <Modal isOpen={showCropMode} onClose={() => setShowCropMode(false)}>
-        <div className="auth-card glass" style={{ width: '100%', maxWidth: '450px', margin: '0 auto' }}>
-          <h2 className="auth-title">Crop Profile Image</h2>
-          
-          {cropImage && (
-            <div style={{ marginBottom: '20px' }}>
-              {/* Crop Preview Area */}
-              <div
-                style={{
-                  position: 'relative',
-                  width: '280px',
-                  height: '280px',
-                  margin: '0 auto 16px',
-                  borderRadius: '50%',
-                  border: '4px solid #ff955f',
-                  overflow: 'hidden',
-                  background: '#f9fafb',
-                  boxShadow: '0 8px 24px rgba(220, 93, 32, 0.15)',
-                  cursor: 'grab'
+      {/* Image Crop Modal - Fixed with High Z-Index */}
+      {showCropMode && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={() => {
+            setShowCropMode(false);
+            setCropImage(null);
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '28px',
+              maxWidth: '500px',
+              width: '90%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+              animation: 'slideUp 0.3s ease'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: '0', fontSize: '22px', fontWeight: '800', color: '#1f2937' }}>🖼️ Crop Profile Image</h2>
+              <button
+                onClick={() => {
+                  setShowCropMode(false);
+                  setCropImage(null);
                 }}
-                onMouseMove={handleCropDrag}
-                onMouseDown={(e) => e.currentTarget.style.cursor = 'grabbing'}
-                onMouseUp={(e) => e.currentTarget.style.cursor = 'grab'}
-                onWheel={handleCropZoom}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '28px',
+                  cursor: 'pointer',
+                  color: '#9ca3af',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.color = '#dc5d20'}
+                onMouseLeave={(e) => e.target.style.color = '#9ca3af'}
               >
-                <img
-                  src={cropImage}
-                  alt="Crop preview"
-                  style={{
-                    width: `${100 * cropScale}%`,
-                    height: `${100 * cropScale}%`,
-                    objectFit: 'cover',
-                    transform: `translate(${cropPosition.x}px, ${cropPosition.y}px)`,
-                    cursor: 'grab',
-                    userSelect: 'none'
-                  }}
-                  draggable={false}
-                />
-              </div>
-
-              {/* Controls */}
-              <div style={{ background: '#fafafa', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>
-                    Zoom: {Math.round(cropScale * 100)}%
-                  </label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="3"
-                    step="0.1"
-                    value={cropScale}
-                    onChange={(e) => setCropScale(parseFloat(e.target.value))}
-                    style={{
-                      width: '100%',
-                      cursor: 'pointer',
-                      accentColor: '#ff955f'
-                    }}
-                  />
-                </div>
-                <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0' }}>
-                  💡 Drag image to position • Scroll to zoom
-                </p>
-              </div>
-
-              {/* Buttons */}
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCropMode(false);
-                    setCropImage(null);
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    background: '#f3f4f6',
-                    color: '#374151',
-                    border: '1.5px solid #d1d5db',
-                    borderRadius: '10px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#e5e7eb';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = '#f3f4f6';
-                  }}
-                >
-                  ✕ Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={applyCrop}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    background: 'linear-gradient(135deg, #ff955f 0%, #ff3100 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 4px 12px rgba(255, 107, 29, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 20px rgba(255, 107, 29, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 29, 0.3)';
-                  }}
-                >
-                  ✓ Apply Crop
-                </button>
-              </div>
+                ×
+              </button>
             </div>
-          )}
+
+            {cropImage && (
+              <div>
+                {/* Crop Preview Area */}
+                <div style={{ marginBottom: '20px' }}>
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '300px',
+                      height: '300px',
+                      margin: '0 auto',
+                      borderRadius: '50%',
+                      border: '5px solid',
+                      borderColor: '#ff955f',
+                      overflow: 'hidden',
+                      background: '#f9fafb',
+                      boxShadow: '0 12px 40px rgba(220, 93, 32, 0.2), inset 0 0 0 1px rgba(220, 93, 32, 0.1)',
+                      cursor: 'grab',
+                      userSelect: 'none'
+                    }}
+                    onMouseMove={handleCropDrag}
+                    onMouseDown={(e) => e.currentTarget.style.cursor = 'grabbing'}
+                    onMouseUp={(e) => e.currentTarget.style.cursor = 'grab'}
+                    onWheel={handleCropZoom}
+                  >
+                    <img
+                      src={cropImage}
+                      alt="Crop preview"
+                      style={{
+                        width: `${100 * cropScale}%`,
+                        height: `${100 * cropScale}%`,
+                        objectFit: 'cover',
+                        transform: `translate(${cropPosition.x}px, ${cropPosition.y}px)`,
+                        cursor: 'grab',
+                        userSelect: 'none',
+                        display: 'block'
+                      }}
+                      draggable={false}
+                    />
+                  </div>
+                </div>
+
+                {/* Controls Section */}
+                <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #fafbfc 100%)', padding: '18px', borderRadius: '14px', marginBottom: '20px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151' }}>
+                        🔍 Zoom Level
+                      </label>
+                      <span style={{ fontSize: '14px', fontWeight: '700', color: '#ff955f' }}>
+                        {Math.round(cropScale * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="3"
+                      step="0.05"
+                      value={cropScale}
+                      onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                      style={{
+                        width: '100%',
+                        cursor: 'pointer',
+                        accentColor: '#ff955f',
+                        height: '6px'
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#6b7280', marginTop: '12px', padding: '10px', background: 'white', borderRadius: '8px' }}>
+                    <span>👆 Drag image to position</span>
+                    <span style={{ color: '#d1d5db' }}>•</span>
+                    <span>🖱️ Scroll wheel to zoom</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCropMode(false);
+                      setCropImage(null);
+                    }}
+                    disabled={isCropping}
+                    style={{
+                      flex: 1,
+                      padding: '12px 20px',
+                      background: '#f3f4f6',
+                      color: '#374151',
+                      border: '1.5px solid #d1d5db',
+                      borderRadius: '10px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: isCropping ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      opacity: isCropping ? 0.6 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isCropping) e.target.style.background = '#e5e7eb';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isCropping) e.target.style.background = '#f3f4f6';
+                    }}
+                  >
+                    ✕ Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyCrop}
+                    disabled={isCropping}
+                    style={{
+                      flex: 1,
+                      padding: '12px 20px',
+                      background: isCropping ? '#9ca3af' : 'linear-gradient(135deg, #ff955f 0%, #ff3100 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      cursor: isCropping ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 4px 15px rgba(255, 107, 29, 0.3)',
+                      opacity: isCropping ? 0.8 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isCropping) {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 8px 25px rgba(255, 107, 29, 0.4)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isCropping) {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 15px rgba(255, 107, 29, 0.3)';
+                      }
+                    }}
+                  >
+                    {isCropping ? '⏳ Processing...' : '✓ Apply Crop'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </Modal>
+      )}
 
       {/* Edit Profile Modal */}
       <Modal isOpen={showEditProfileModal} onClose={() => setShowEditProfileModal(false)}>
@@ -784,7 +886,8 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '12px'
+                  gap: '12px',
+                  position: 'relative'
                 }}
               >
                 <div style={{ position: 'relative', marginBottom: '8px' }}>

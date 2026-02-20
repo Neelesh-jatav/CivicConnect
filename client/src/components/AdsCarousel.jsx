@@ -48,12 +48,6 @@ const AdsCarousel = () => {
 
   return (
     <div className="local-partners">
-      {/* Header */}
-      <div className="section-header">
-        <h3>LOCAL PARTNERS</h3>
-        <span className="sponsored-badge">SPONSORED</span>
-      </div>
-
       {/* Card */}
       <div className="ad-card">
         {/* Tags */}

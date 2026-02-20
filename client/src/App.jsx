@@ -335,14 +335,28 @@ function App() {
                 </div>
               </section>
               <section className="home-ads-layout">
+                {/* LEFT — Community Shorts */}
                 <div className="home-left-column">
-                  {isLoggedIn && <Impact user={user} />}
-                  <TrendingIssues />
-                </div>
-                <div className="home-middle-column">
                   <HomeMediaShorts onUserClick={handleUserClick} onConnectionChange={fetchNotifications} />
                 </div>
+
+                {/* CENTER — Impact + Trending (stacked into one card) */}
+                <div className="home-center-column">
+                  <div className="center-stack">
+                    {isLoggedIn && <Impact user={user} />}
+                    <TrendingIssues />
+                  </div>
+                </div>
+
+                {/* RIGHT — Ads */}
                 <div className="home-right-column">
+                  <div className="local-partners-header">
+                    <div className="partners-icon">🤝</div>
+                    <div className="partners-content">
+                      <h3>Local Partners</h3>
+                      <span className="sponsored-badge-new">SPONSORED</span>
+                    </div>
+                  </div>
                   <AdsCarousel />
                 </div>
               </section>

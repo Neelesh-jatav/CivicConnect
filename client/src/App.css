@@ -37,3 +37,15 @@
   flex: 1; /* HomeMediaShorts takes 1/3 of the space */
 }
 
+/* Modal Animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
