@@ -27,6 +27,12 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
   const [editAvatar, setEditAvatar] = useState(null);
   const [editAvatarPreview, setEditAvatarPreview] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [showCropMode, setShowCropMode] = useState(false);
+  const [cropImage, setCropImage] = useState(null);
+  const [cropPosition, setCropPosition] = useState({ x: 0, y: 0 });
+  const [cropScale, setCropScale] = useState(1);
+  const canvasRef = React.useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -137,10 +143,125 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setEditAvatar(file);
-      setEditAvatarPreview(URL.createObjectURL(file));
+    if (file && validateImageFile(file)) {
+      handleImageSelectForCrop(file);
     }
+  };
+
+  const validateImageFile = (file) => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please select a valid image format (JPG, PNG, GIF, WebP)');
+      return false;
+    }
+    
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 5MB');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (validateImageFile(file)) {
+        handleImageSelectForCrop(file);
+      }
+    }
+  };
+
+  const clearImageSelection = () => {
+    setEditAvatar(null);
+    setEditAvatarPreview(user.avatar?.url || 'https://i.pravatar.cc/150');
+    setShowCropMode(false);
+    setCropImage(null);
+  };
+
+  const handleImageSelectForCrop = (imageFile) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setCropImage(e.target.result);
+      setShowCropMode(true);
+      setCropPosition({ x: 0, y: 0 });
+      setCropScale(1);
+    };
+    reader.readAsDataURL(imageFile);
+  };
+
+  const applyCrop = () => {
+    if (!cropImage || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const image = new Image();
+    
+    image.onload = () => {
+      const size = 200; // Crop to 200x200
+      const scaledWidth = image.width * cropScale;
+      const scaledHeight = image.height * cropScale;
+
+      canvas.width = size;
+      canvas.height = size;
+
+      ctx.clearRect(0, 0, size, size);
+      ctx.drawImage(
+        image,
+        cropPosition.x,
+        cropPosition.y,
+        scaledWidth,
+        scaledHeight,
+        0,
+        0,
+        size,
+        size
+      );
+
+      canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], 'profile-image.png', { type: 'image/png' });
+        setEditAvatar(croppedFile);
+        setEditAvatarPreview(canvas.toDataURL());
+        setShowCropMode(false);
+        setCropImage(null);
+        toast.success('Image cropped successfully!');
+      }, 'image/png');
+    };
+    image.src = cropImage;
+  };
+
+  const handleCropDrag = (e) => {
+    if (e.buttons === 0) return; // No mouse button pressed
+    const sensitivity = 2;
+    setCropPosition(prev => ({
+      x: Math.max(-500, Math.min(500, prev.x - e.movementX * sensitivity)),
+      y: Math.max(-500, Math.min(500, prev.y - e.movementY * sensitivity))
+    }));
+  };
+
+  const handleCropZoom = (e) => {
+    e.preventDefault();
+    const wheelDelta = e.deltaY > 0 ? -0.05 : 0.05;
+    setCropScale(prev => Math.max(0.5, Math.min(3, prev + wheelDelta)));
   };
 
   const updateProfileHandler = async (e) => {
@@ -511,32 +632,360 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
         </div>
       </Modal>
 
+      {/* Image Crop Modal */}
+      <Modal isOpen={showCropMode} onClose={() => setShowCropMode(false)}>
+        <div className="auth-card glass" style={{ width: '100%', maxWidth: '450px', margin: '0 auto' }}>
+          <h2 className="auth-title">Crop Profile Image</h2>
+          
+          {cropImage && (
+            <div style={{ marginBottom: '20px' }}>
+              {/* Crop Preview Area */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '280px',
+                  height: '280px',
+                  margin: '0 auto 16px',
+                  borderRadius: '50%',
+                  border: '4px solid #ff955f',
+                  overflow: 'hidden',
+                  background: '#f9fafb',
+                  boxShadow: '0 8px 24px rgba(220, 93, 32, 0.15)',
+                  cursor: 'grab'
+                }}
+                onMouseMove={handleCropDrag}
+                onMouseDown={(e) => e.currentTarget.style.cursor = 'grabbing'}
+                onMouseUp={(e) => e.currentTarget.style.cursor = 'grab'}
+                onWheel={handleCropZoom}
+              >
+                <img
+                  src={cropImage}
+                  alt="Crop preview"
+                  style={{
+                    width: `${100 * cropScale}%`,
+                    height: `${100 * cropScale}%`,
+                    objectFit: 'cover',
+                    transform: `translate(${cropPosition.x}px, ${cropPosition.y}px)`,
+                    cursor: 'grab',
+                    userSelect: 'none'
+                  }}
+                  draggable={false}
+                />
+              </div>
+
+              {/* Controls */}
+              <div style={{ background: '#fafafa', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '600', color: '#6b7280', marginBottom: '6px', display: 'block' }}>
+                    Zoom: {Math.round(cropScale * 100)}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="3"
+                    step="0.1"
+                    value={cropScale}
+                    onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                    style={{
+                      width: '100%',
+                      cursor: 'pointer',
+                      accentColor: '#ff955f'
+                    }}
+                  />
+                </div>
+                <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0' }}>
+                  💡 Drag image to position • Scroll to zoom
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCropMode(false);
+                    setCropImage(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: '#f3f4f6',
+                    color: '#374151',
+                    border: '1.5px solid #d1d5db',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#e5e7eb';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#f3f4f6';
+                  }}
+                >
+                  ✕ Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={applyCrop}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: 'linear-gradient(135deg, #ff955f 0%, #ff3100 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(255, 107, 29, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(255, 107, 29, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 29, 0.3)';
+                  }}
+                >
+                  ✓ Apply Crop
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+
       {/* Edit Profile Modal */}
       <Modal isOpen={showEditProfileModal} onClose={() => setShowEditProfileModal(false)}>
-        <div className="auth-card glass" style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+        <div className="auth-card glass" style={{ width: '100%', maxWidth: '420px', margin: '0 auto' }}>
           <h2 className="auth-title">Edit Profile</h2>
           <form onSubmit={updateProfileHandler}>
-            <div style={{ marginBottom: '15px', textAlign: 'center' }}>
-              <img
-                src={editAvatarPreview}
-                alt="Avatar Preview"
-                style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px', border: '2px solid #dc5d20' }}
-                onError={(e) => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'; }}
-              />
-              <input
-                type="file"
-                name="avatar"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                style={{ fontSize: '12px' }}
-              />
+            {/* Image Upload Section */}
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+              <div
+                className="image-upload-container"
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                style={{
+                  padding: '24px',
+                  border: '2px dashed',
+                  borderColor: isDragOver ? '#ff955f' : '#d1d5db',
+                  borderRadius: '16px',
+                  background: isDragOver ? '#fff5f0' : '#fafafa',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}
+              >
+                <div style={{ position: 'relative', marginBottom: '8px' }}>
+                  <img
+                    src={editAvatarPreview}
+                    alt="Avatar Preview"
+                    style={{
+                      width: '100px',
+                      height: '100px',
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      border: '3px solid #dc5d20',
+                      boxShadow: '0 4px 12px rgba(220, 93, 32, 0.2)'
+                    }}
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'; }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-5px',
+                    right: '-5px',
+                    background: '#ff955f',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    border: '2px solid white',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                  }}>📷</div>
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#1f2937', fontSize: '14px' }}
+                    >{isDragOver ? '📂 Drop your image here' : '🖼️ Drop image or click to browse'}</p>
+                  <p style={{ margin: '0', color: '#6b7280', fontSize: '12px' }}>JPG, PNG, GIF, WebP • Max 5MB</p>
+                </div>
+                <input
+                  type="file"
+                  name="avatar"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    opacity: '0',
+                    cursor: 'pointer',
+                    left: '0',
+                    top: '0'
+                  }}
+                />
+              </div>
+              {editAvatar && (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (file && validateImageFile(file)) {
+                          handleImageSelectForCrop(file);
+                        }
+                      };
+                      input.click();
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '8px 16px',
+                      background: '#dbeafe',
+                      color: '#1e40af',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#bfdbfe';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#dbeafe';
+                    }}
+                  >
+                    🔄 Change Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearImageSelection}
+                    style={{
+                      flex: 1,
+                      padding: '8px 16px',
+                      background: '#fee2e2',
+                      color: '#ef4444',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#fecaca';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#fee2e2';
+                    }}
+                  >
+                    ✕ Clear
+                  </button>
+                </div>
+              )}
             </div>
-            <input type="text" placeholder="Name" value={editName} onChange={(e) => setEditName(e.target.value)} required />
-            <input type="text" placeholder="Phone Number" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
-            <button type="submit" className="auth-btn" disabled={profileLoading}>
-              {profileLoading ? 'Updating...' : 'Save Changes'}
+
+            {/* Name Input */}
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '1.5px solid #d1d5db',
+                borderRadius: '10px',
+                fontSize: '14px',
+                marginBottom: '12px',
+                fontFamily: 'inherit',
+                transition: 'all 0.2s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#ff955f';
+                e.target.style.boxShadow = '0 0 0 3px rgba(255, 149, 95, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#d1d5db';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+
+            {/* Phone Input */}
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '1.5px solid #d1d5db',
+                borderRadius: '10px',
+                fontSize: '14px',
+                marginBottom: '20px',
+                fontFamily: 'inherit',
+                transition: 'all 0.2s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#ff955f';
+                e.target.style.boxShadow = '0 0 0 3px rgba(255, 149, 95, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#d1d5db';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="auth-btn"
+              disabled={profileLoading}
+              style={{
+                width: '100%',
+                padding: '12px 20px',
+                background: profileLoading ? '#9ca3af' : 'linear-gradient(135deg, #ff955f 0%, #ff3100 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: '700',
+                cursor: profileLoading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: profileLoading ? 0.7 : 1
+              }}
+            >
+              {profileLoading ? 'Updating...' : '✓ Save Changes'}
             </button>
           </form>
+
+          {/* Hidden canvas for cropping */}
+          <canvas
+            ref={canvasRef}
+            style={{ display: 'none' }}
+          />
         </div>
       </Modal>
     </div>
