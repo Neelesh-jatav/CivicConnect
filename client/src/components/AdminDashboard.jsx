@@ -22,6 +22,7 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
   const [users, setUsers] = useState([]);
   const [userLoading, setUserLoading] = useState(false);
   const [userError, setUserError] = useState(null);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
   const [showAnalyticsOptions, setShowAnalyticsOptions] = useState(true);
 
   useEffect(() => {
@@ -110,6 +111,7 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
   const handleGetAllUsersClick = async () => {
     console.log('Get All Users button clicked');
     setShowAllUsersTable(true);
+    setUserSearchQuery('');
     try {
       setUserLoading(true);
       const { data } = await axios.get('http://localhost:5002/api/v1/admin/users', {
@@ -123,6 +125,34 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
     } finally {
       setUserLoading(false);
     }
+  };
+
+  const handleSearchUsers = async (searchQuery) => {
+    setUserSearchQuery(searchQuery);
+    if (!searchQuery.trim()) {
+      // If search is empty, fetch all users again
+      try {
+        setUserLoading(true);
+        const { data } = await axios.get('http://localhost:5002/api/v1/admin/users', {
+          withCredentials: true,
+        });
+        setUsers(Array.isArray(data.users) ? data.users : []);
+        setUserError(null);
+      } catch (err) {
+        setUserError(err.response?.data?.message || 'Failed to fetch users');
+        setUsers([]);
+      } finally {
+        setUserLoading(false);
+      }
+      return;
+    }
+    // Filter users locally based on search query
+    const filteredUsers = users.filter((user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user._id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    // We'll display filtered results without making API call
   };
 
   const handleDeleteUser = async (userId) => {
@@ -154,7 +184,9 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
   };
 
   const handleAnalyticsClick = () => {
-    setShowAnalyticsOptions(!showAnalyticsOptions);
+    // Toggle Analytics and close all other sections
+    const newAnalyticsState = !showAnalyticsOptions;
+    setShowAnalyticsOptions(newAnalyticsState);
     setShowComplaintsOptions(false);
     setShowManageUsersOptions(false);
     setShowAllComplaintsTable(false);
@@ -171,24 +203,36 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
 
     {/* ACTION BAR — ALWAYS VISIBLE */}
     <div className="admin-action-bar">
-      <button className="admin-action-btn" onClick={handleAnalyticsClick}>
-        Analytics
+      <button 
+        className={`admin-action-btn ${showAnalyticsOptions ? 'active' : ''}`}
+        onClick={handleAnalyticsClick}
+      >
+        📊 Analytics
       </button>
 
-      <button className="admin-action-btn" onClick={handleManageComplaintsClick}>
-        Manage Complaints
+      <button 
+        className={`admin-action-btn ${showComplaintsOptions ? 'active' : ''}`}
+        onClick={handleManageComplaintsClick}
+      >
+        📋 Manage Complaints
       </button>
 
-      <button className="admin-action-btn" onClick={handleUsersClick}>
-        Manage Users
+      <button 
+        className={`admin-action-btn ${showManageUsersOptions ? 'active' : ''}`}
+        onClick={handleUsersClick}
+      >
+        👥 Manage Users
       </button>
 
       <button className="admin-action-btn" onClick={handleAddNewAdminClick}>
-        Add New Admin
+        ➕ Add New Admin
       </button>
 
-      <button className="admin-action-btn" onClick={handleAddNewOfficerClick}>
-        Add New Officer
+      <button 
+        className={`admin-action-btn ${showAddOfficerModal ? 'active' : ''}`}
+        onClick={handleAddNewOfficerClick}
+      >
+        👮 Add New Officer
       </button>
     </div>
 
@@ -253,8 +297,17 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
     )}
 
     {showManageUsersOptions && (
-      <div className="user-options-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
-        <button className="btn" onClick={handleGetAllUsersClick}>Get All Users</button>
+      <div className="user-options-container">
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+          <input
+            type="text"
+            placeholder="🔍 Search by name, user ID, or email..."
+            value={userSearchQuery}
+            onChange={(e) => handleSearchUsers(e.target.value)}
+            className="user-search-input"
+          />
+          <button className="btn" onClick={handleGetAllUsersClick}>Get All Users</button>
+        </div>
       </div>
     )}
     
@@ -284,22 +337,31 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user, index) => (
-                    <tr key={user._id}>
-                      <td>{index + 1}</td>
-                      <td>{user._id}</td>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>{user.role}</td>
-                      <td>{user.isSuspended ? 'Suspended' : 'Active'}</td>
-                      <td>
-                        <button className="btn btn-danger" onClick={() => handleDeleteUser(user._id)}>Delete</button>
-                        <button className={`btn ${user.isSuspended ? 'btn-success' : 'btn-warning'}`} onClick={() => handleSuspendUser(user._id, user.isSuspended)}>
-                          {user.isSuspended ? 'Unsuspend' : 'Suspend'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {users
+                    .filter((user) => {
+                      if (!userSearchQuery.trim()) return true;
+                      return (
+                        user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                        user.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                        user._id.toLowerCase().includes(userSearchQuery.toLowerCase())
+                      );
+                    })
+                    .map((user, index) => (
+                      <tr key={user._id}>
+                        <td>{index + 1}</td>
+                        <td>{user._id}</td>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                        <td>{user.role}</td>
+                        <td>{user.isSuspended ? 'Suspended' : 'Active'}</td>
+                        <td>
+                          <button className="btn btn-danger" onClick={() => handleDeleteUser(user._id)}>Delete</button>
+                          <button className={`btn ${user.isSuspended ? 'btn-success' : 'btn-warning'}`} onClick={() => handleSuspendUser(user._id, user.isSuspended)}>
+                            {user.isSuspended ? 'Unsuspend' : 'Suspend'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import './CreateAd.css';
  
 const CreateAd = ({ onClose, onAdCreated }) => {
   const [sponsors, setSponsors] = useState([]);
@@ -81,47 +82,117 @@ const CreateAd = ({ onClose, onAdCreated }) => {
   };
 
   return (
-    <div className="admin-form-modal">
-      <div className="admin-form-card">
-        <h2 className="auth-title">Create Ad</h2>
-        <p className="auth-subtitle">Launch a new advertisement</p>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Sponsor*</label>
-            <select value={selectedSponsor} onChange={(e) => setSelectedSponsor(e.target.value)} required>
-              <option value="" disabled>Select a sponsor</option>
-              {sponsors.map(sponsor => (
-                <option key={sponsor._id} value={sponsor._id}>{sponsor.businessName}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Ad Image*</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} required />
-             {preview && <img src={preview} alt="Ad preview" style={{ width: '100%', marginTop: '10px', borderRadius: '8px' }}/>}
-          </div>
-          <div className="form-group">
-            <label>Offer Text</label>
-            <input type="text" placeholder="e.g., 15% OFF for community cleanup" value={offerText} onChange={(e) => setOfferText(e.target.value)} />
-          </div>
-          <div className="form-group" id="ad-start-date">
-            <label>Start Date*</label>
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required/>
-          </div>
-          <div className="form-group" id="ad-end-date">
-            <label>End Date*</label>
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
-          </div>
+    <div
+      className="admin-form-modal"
+      onClick={onClose}
+    >
+      <div onClick={e => e.stopPropagation()}>
+        {/* Content */}
+        <div className="create-ad-content">
+          <div className="create-ad-grid">
+            {/* Left Column - Form + Image Upload */}
+            <div className="create-ad-form">
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Sponsor *</label>
+                  <select 
+                    value={selectedSponsor} 
+                    onChange={(e) => setSelectedSponsor(e.target.value)} 
+                    required
+                  >
+                    <option value="" disabled>Select sponsor</option>
+                    {sponsors.map(sponsor => (
+                      <option key={sponsor._id} value={sponsor._id}>{sponsor.businessName}</option>
+                    ))}
+                  </select>
+                </div>
 
-          {error && <p className="error-message">{error}</p>}
+                <div className="form-group">
+                  <label>Offer Text *</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 15% OFF" 
+                    value={offerText} 
+                    onChange={(e) => setOfferText(e.target.value)} 
+                    required 
+                  />
+                </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>Cancel</button>
-            <button type="submit" className="auth-btn" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Ad'}
-            </button>
+                <div className="form-group">
+                  <label>Start Date *</label>
+                  <input 
+                    type="date" 
+                    value={startDate} 
+                    onChange={(e) => setStartDate(e.target.value)} 
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>End Date *</label>
+                  <input 
+                    type="date" 
+                    value={endDate} 
+                    onChange={(e) => setEndDate(e.target.value)} 
+                    required 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Ad Image *</label>
+                  <div className="create-ad-upload-area">
+                    <input 
+                      type="file" 
+                      id="ad-image-input" 
+                      accept="image/*" 
+                      onChange={handleImageChange} 
+                      required 
+                    />
+                    <label htmlFor="ad-image-input">
+                      <span className="upload-icon">📷</span>
+                      <p className="upload-text">Drag image here or click</p>
+                      <p className="upload-hint">JPG, PNG (Max 5MB)</p>
+                    </label>
+                  </div>
+                </div>
+
+                {error && <p className="create-ad-error">{error}</p>}
+
+                <div className="create-ad-actions">
+                  <button 
+                    type="button" 
+                    className="cancel-btn"
+                    onClick={onClose} 
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="submit-btn"
+                    disabled={loading}
+                  >
+                    {loading ? 'Creating...' : 'Create'}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Right Column - Image Preview */}
+            <div className="create-ad-preview">
+              {preview ? (
+                <>
+                  <label>Preview</label>
+                  <img src={preview} alt="Ad preview" />
+                </>
+              ) : (
+                <div className="create-ad-preview-placeholder">
+                  🖼️
+                </div>
+              )}
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

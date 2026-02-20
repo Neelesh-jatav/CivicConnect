@@ -53,3 +53,34 @@ export const trackClick = catchAsyncErrors(async (req, res) => {
   });
   res.json({ success: true });
 });
+
+export const updateAdImage = catchAsyncErrors(async (req, res) => {
+  const ad = await Advertisement.findById(req.params.id);
+
+  if (!ad) {
+    return res.status(404).json({ success: false, message: "Ad not found" });
+  }
+
+  // Update text fields if provided
+  if (req.body.offerText) {
+    ad.offerText = req.body.offerText;
+  }
+
+  if (req.body.startDate) {
+    ad.startDate = new Date(req.body.startDate);
+  }
+
+  if (req.body.endDate) {
+    ad.endDate = new Date(req.body.endDate);
+  }
+
+  // If a new image is provided, upload it to Cloudinary
+  if (req.file) {
+    const imageUpload = await uploadToCloudinary(req.file.buffer, req.file.mimetype, "ads");
+    ad.image = imageUpload;
+  }
+
+  await ad.save();
+
+  res.status(200).json({ success: true, ad });
+});
