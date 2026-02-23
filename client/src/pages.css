@@ -112,10 +112,6 @@
   color: #fff;
 }
 
-.progress-step.active span {
-  /* background: linear-gradient(to right, #ff955f, #ff3100); */
-}
-
 .progress-step strong {
   display: block;
   font-size: 14px;
@@ -956,4 +952,399 @@
 .impact-number .label {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+/* Mobile-First Responsive Styles */
+@media (max-width: 768px) {
+  /* Report Page */
+  .report-page {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .report-header {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .report-header h2 {
+    font-size: 16px;
+  }
+
+  .step-indicator {
+    font-size: 12px;
+  }
+
+  .report-body {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .report-left {
+    order: 2;
+  }
+
+  .report-right {
+    order: 1;
+  }
+
+  .progress-card,
+  .tips-card {
+    padding: 12px;
+  }
+
+  .progress-card h4,
+  .tips-card h4 {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .progress-step {
+    padding: 10px;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .progress-step strong {
+    font-size: 13px;
+  }
+
+  .progress-step p {
+    font-size: 12px;
+  }
+
+  .form-card label {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+
+  /* Helpline Page */
+  .helpline-container {
+    padding: 20px;
+  }
+
+  .helpline-hero h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .helpline-hero p {
+    font-size: 15px;
+  }
+
+  .helpline-services {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .service-card {
+    padding: 24px 20px;
+  }
+
+  .service-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .service-card h3 {
+    font-size: 16px;
+  }
+
+  .service-card p {
+    font-size: 13px;
+  }
+
+  /* Impact Numbers */
+  .impact-numbers {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .impact-number {
+    padding: 16px;
+  }
+
+  .impact-number .number {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .impact-number .label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Report Page */
+  .report-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .report-page {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .report-header {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .back-btn {
+    font-size: 18px;
+  }
+
+  .report-header h2 {
+    font-size: 14px;
+  }
+
+  .step-indicator {
+    font-size: 11px;
+  }
+
+  .report-body {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .progress-card,
+  .tips-card {
+    padding: 10px;
+  }
+
+  .progress-card h4,
+  .tips-card h4 {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .progress-step {
+    padding: 8px;
+    gap: 8px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+  }
+
+  .progress-step strong {
+    font-size: 12px;
+    margin-bottom: 1px;
+  }
+
+  .progress-step p {
+    font-size: 11px;
+  }
+
+  .form-card label {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+
+  .form-card input,
+  .form-card textarea,
+  .form-card select {
+    padding: 9px 10px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .preview-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+  }
+
+  .preview-box button {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+  }
+
+  .otp-row {
+    grid-template-columns: 1fr 90px;
+    gap: 6px;
+  }
+
+  .otp-row input {
+    padding: 9px;
+    font-size: 13px;
+  }
+
+  .otp-row button {
+    padding: 9px;
+    font-size: 12px;
+  }
+
+  .success-text {
+    padding: 8px;
+    font-size: 12px;
+    margin: 10px 0;
+  }
+
+  .continue-btn {
+    padding: 10px;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .secondary-btn {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .step-actions {
+    gap: 8px;
+    margin-top: 16px;
+    flex-direction: column;
+  }
+
+  .step-actions .secondary-btn,
+  .step-actions .continue-btn {
+    width: 100%;
+  }
+
+  /* Helpline Page */
+  .helpline-container {
+    padding: 16px;
+  }
+
+  .helpline-hero {
+    margin-bottom: 40px;
+  }
+
+  .helpline-hero h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .helpline-hero p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .helpline-services {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .service-card {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .service-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 26px;
+    margin-bottom: 10px;
+  }
+
+  .service-card h3 {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .service-card p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  /* Breakdown Status */
+  .breakdown-item {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .status-label {
+    min-width: 80px;
+    font-size: 11px;
+  }
+
+  .progress-bar {
+    height: 10px;
+  }
+
+  .status-count {
+    min-width: 25px;
+    font-size: 11px;
+  }
+
+  /* Impact Numbers */
+  .impact-numbers {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .impact-number {
+    padding: 14px;
+    border-radius: 6px;
+  }
+
+  .impact-number .number {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .impact-number .label {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .report-body {
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+  }
+
+  .helpline-services {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill,
+  .service-card,
+  .continue-btn,
+  .secondary-btn {
+    transition: none;
+  }
+
+  .service-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .report-page,
+  .card,
+  .service-card {
+    border: 2px solid #374151;
+  }
+
+  .progress-step {
+    border: 2px solid #374151;
+  }
+
+  .progress-step.active {
+    border: 2px solid #dc5d20;
+  }
 }

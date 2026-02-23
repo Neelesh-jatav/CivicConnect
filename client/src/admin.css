@@ -567,3 +567,223 @@
   #sponsor-city, #sponsor-area, #sponsor-phone, #sponsor-website,
   #ad-start-date, #ad-end-date { grid-column: span 1; }
 }
+
+/* Comprehensive Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+  .admin-dashboard-page {
+    padding: 12px;
+  }
+
+  .admin-dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .admin-dashboard-header h1,
+  .admin-dashboard-header h2 {
+    font-size: 20px;
+  }
+
+  .admin-dashboard-header p {
+    font-size: 13px;
+    margin: 4px 0 0;
+  }
+
+  .admin-portal-heading {
+    text-align: left;
+    font-size: 1.2em;
+  }
+
+  .admin-dashboard-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .admin-dashboard-actions .btn {
+    width: 100%;
+    padding: 9px 16px;
+    font-size: 14px;
+  }
+
+  .manage-users-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+
+  .stat-box span {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .stat-box h2 {
+    font-size: 22px;
+  }
+
+  .all-users-section {
+    margin-top: 20px;
+  }
+
+  .all-users-section h3 {
+    font-size: 16px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+  }
+
+  .user-options-container {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .user-search-input {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  .user-options-container .btn {
+    width: 100%;
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+
+  .admin-form-card {
+    max-width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .admin-form-card h3 {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  .admin-form-card form {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .admin-form-card label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .admin-form-card input,
+  .admin-form-card textarea,
+  .admin-form-card select {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  .admin-form-card .form-actions {
+    grid-column: span 1;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .admin-form-card .form-actions button {
+    width: 100%;
+    padding: 11px;
+    font-size: 14px;
+    border-radius: 20px;
+  }
+
+  #sponsor-city, #sponsor-area, #sponsor-phone, #sponsor-website,
+  #ad-start-date, #ad-end-date {
+    grid-column: span 1;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .admin-dashboard-page {
+    padding: 16px;
+  }
+
+  .admin-dashboard-header {
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .admin-dashboard-header h1,
+  .admin-dashboard-header h2 {
+    font-size: 24px;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .admin-dashboard-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .manage-users-btn {
+    flex: 1 1 auto;
+  }
+
+  .user-options-container {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .user-search-input {
+    flex: 1;
+  }
+
+  .admin-form-card {
+    max-width: 95vw;
+    padding: 20px;
+  }
+
+  .admin-form-card form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-stats-grid,
+  .all-users-section,
+  .user-options-container .btn,
+  .manage-users-btn {
+    animation: none;
+    transition: none;
+  }
+
+  .user-options-container .btn:hover,
+  .manage-users-btn:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .stat-box,
+  .admin-form-card,
+  .user-search-input {
+    border: 2px solid #374151;
+  }
+
+  .user-options-container .btn,
+  .manage-users-btn {
+    border: 2px solid #dc5d20;
+  }
+}

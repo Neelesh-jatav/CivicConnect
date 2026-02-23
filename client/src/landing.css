@@ -564,6 +564,47 @@
   .your-impact-card {
     padding: 14px !important;
   }
+
+  /* Ad Cards */
+  .ad-card {
+    border-radius: 14px;
+  }
+
+  .ad-card h4 {
+    font-size: 18px;
+    margin: 12px 12px 3px;
+  }
+
+  .ad-card p {
+    margin: 0 12px 10px;
+    font-size: 13px;
+  }
+
+  .offer {
+    margin: 0 12px 10px;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .meta {
+    font-size: 13px;
+    margin: 0 12px 12px;
+  }
+
+  .actions {
+    padding: 0 12px 14px;
+    gap: 10px;
+  }
+
+  .actions button,
+  .actions a {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .carousel-controls button {
+    font-size: 22px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -649,6 +690,7 @@
     font-size: 12px;
   }
 
+  .sponsored-badge,
   .sponsored-badge-new {
     font-size: 9px;
     padding: 4px 8px;
@@ -661,6 +703,89 @@
 
   .your-impact-card {
     padding: 12px !important;
+  }
+
+  /* Ad Cards Mobile */
+  .ad-card {
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .ad-tags {
+    top: 10px;
+    left: 10px;
+    gap: 6px;
+  }
+
+  .featured,
+  .ad-label {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  .ad-card img {
+    height: 80px;
+  }
+
+  .ad-card h4 {
+    font-size: 16px;
+    margin: 10px 10px 2px;
+    font-weight: 700;
+  }
+
+  .ad-card p {
+    margin: 0 10px 8px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .offer {
+    margin: 0 10px 8px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .meta {
+    font-size: 12px;
+    margin: 0 10px 10px;
+    line-height: 1.5;
+  }
+
+  .actions {
+    flex-direction: column;
+    padding: 0 10px 12px;
+    gap: 8px;
+  }
+
+  .actions button,
+  .actions a {
+    width: 100%;
+    padding: 9px;
+    font-size: 13px;
+    border-radius: 20px;
+  }
+
+  .carousel-controls {
+    margin-top: 10px;
+  }
+
+  .carousel-controls button {
+    font-size: 20px;
+  }
+
+  .carousel-dots {
+    margin-top: 8px;
+    gap: 6px;
+  }
+
+  .carousel-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .carousel-dot.active {
+    width: 14px;
   }
 }
 

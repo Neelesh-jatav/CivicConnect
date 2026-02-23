@@ -217,3 +217,127 @@ body.modal-open {
   background: #e0e7ff;
   color: #3730a3;
 }
+
+/* Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+  /* Buttons */
+  .btn {
+    padding: 7px 12px;
+    font-size: 12px;
+    margin-left: 6px;
+    border-radius: 6px;
+  }
+
+  .primary-btn {
+    padding: 9px 16px;
+    font-size: 13px;
+    border-radius: 20px;
+  }
+
+  /* Search Input */
+  .search-input {
+    padding: 7px 10px;
+    width: 100%;
+    max-width: 100%;
+    font-size: 13px;
+  }
+
+  /* Modals */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 100%;
+    max-height: 95vh;
+    padding: 20px 16px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .modal-close-button {
+    top: 12px;
+    right: 12px;
+    left: auto;
+    font-size: 20px;
+  }
+
+  /* Forms */
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .form-control {
+    padding: 9px 10px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .error-message {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  /* Status Pills */
+  .status-pill {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .btn {
+    padding: 7px 13px;
+    font-size: 13px;
+  }
+
+  .search-input {
+    width: 200px;
+  }
+
+  .modal-content {
+    width: 90%;
+    max-width: 600px;
+    padding: 24px;
+  }
+
+  .form-control {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .primary-btn,
+  .form-control,
+  .search-input {
+    transition: none;
+  }
+
+  .primary-btn:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .modal-content,
+  .form-control,
+  .search-input {
+    border: 2px solid #374151;
+  }
+
+  .primary-btn {
+    border: 2px solid #000;
+  }
+}

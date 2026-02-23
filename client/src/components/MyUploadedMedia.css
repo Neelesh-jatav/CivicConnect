@@ -757,6 +757,58 @@ video.media-image {
 
 /* ===== RESPONSIVE CONFIRMATION DIALOG ===== */
 @media (max-width: 480px) {
+  /* Main Container */
+  .my-uploaded-media-container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .my-uploaded-media-container h3 {
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .my-uploaded-media-container > p {
+    padding: 30px 16px;
+    font-size: 13px;
+  }
+
+  /* Media Grid */
+  .media-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  /* Media Card */
+  .media-card {
+    border-radius: 6px;
+  }
+
+  .media-image {
+    height: 100px;
+  }
+
+  .media-card h4 {
+    font-size: 11px;
+    margin: 6px 8px 1px;
+  }
+
+  .media-card p {
+    font-size: 10px;
+    margin: 0 8px 6px;
+  }
+
+  /* Lightbox */
+  .media-lightbox-overlay {
+    padding: 12px;
+  }
+
+  .media-lightbox-container {
+    max-width: 100%;
+    border-radius: 10px 10px 0 0;
+  }
+
+  /* Confirmation Dialog */
   .confirm-delete-dialog {
     padding: 20px;
   }
@@ -815,6 +867,41 @@ video.media-image {
 }
 
 @media (max-width: 768px) {
+  /* Main Container */
+  .my-uploaded-media-container {
+    padding: 16px;
+  }
+
+  .my-uploaded-media-container h3 {
+    font-size: 16px;
+  }
+
+  /* Media Grid */
+  .media-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .media-image {
+    height: 120px;
+  }
+
+  .media-card h4 {
+    font-size: 11px;
+    margin: 7px 9px 1px;
+  }
+
+  .media-card p {
+    font-size: 10px;
+    margin: 0 9px 7px;
+  }
+
+  /* Lightbox */
+  .media-lightbox-overlay {
+    padding: 16px;
+  }
+
+  /* Edit Modal */
   .edit-modal-dialog {
     max-width: 90%;
     padding: 24px;
@@ -849,4 +936,24 @@ video.media-image {
     padding: 7px 14px;
     font-size: 13px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-card,
+  .media-lightbox-overlay {
+    animation: none;
+    transition: none;
+  }
+
+  .media-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .my-uploaded-media-container,
+  .media-card,
+  .edit-modal-dialog,
+  .confirm-delete-dialog {
+    border: 2px solid #374151;
 }
