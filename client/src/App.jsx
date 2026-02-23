@@ -34,7 +34,7 @@ function App() {
   const toggleAddAdminModal = () => {
     setShowAddAdminModal(!showAddAdminModal);
   };
-  const [, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRaiseComplaintModal, setShowRaiseComplaintModal] = useState(false);
@@ -93,6 +93,10 @@ function App() {
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   const toggleRegisterModal = () => {
@@ -185,11 +189,22 @@ function App() {
       <header className="App-header">
         <div className="header-content-wrapper">
           <div className="header-left">
-            {/* <button className="hamburger-btn" onClick={toggleSidebar}>
-              <svg viewBox="0 0 24 24">
+            <button className="hamburger-btn" onClick={toggleSidebar}>
+              <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
               </svg>
-            </button> */}
+            </button>
+            {isLoggedIn && (
+              <div className="mobile-user-preview">
+                <img
+                  src={user?.avatar?.url || user?.avatar || 'https://i.pravatar.cc/100'}
+                  alt="user"
+                  className="mobile-user-avatar"
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'; }}
+                />
+                <span className="mobile-username">{user?.name}</span>
+              </div>
+            )}
             {/* <div className="logo-container">
               <img src={CivicConnectLogo} alt="CivicConnect Logo" className="logo-svg" />
               <div className="logo-text">
@@ -216,7 +231,17 @@ function App() {
         </div>
       </header>
       <div className="main-container">
-        <nav className="sidebar">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+        
+        <nav className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          {/* Close Button for Mobile */}
+          <button className="sidebar-close-btn" onClick={toggleSidebar}>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+          </button>
+          
           {/* Logo */}
           <div className="sidebar-logo">
             <h2>CivicConnect</h2>
