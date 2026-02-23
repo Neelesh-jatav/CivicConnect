@@ -3,6 +3,8 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import './AnalyticsDashboard.css'; // Assuming you'll create this CSS file
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '');
+
 const AnalyticsDashboard = () => {
   const [complaintStats, setComplaintStats] = useState({
     totalComplaints: 0,
@@ -21,7 +23,7 @@ const AnalyticsDashboard = () => {
       try {
         setLoading(true);
         // Fetch Complaint Stats
-        const statsResponse = await axios.get('/api/v1/admin/complaints/stats', { withCredentials: true });
+        const statsResponse = await axios.get(`${API_BASE_URL}/api/v1/admin/complaints/stats`, { withCredentials: true });
         console.log('Stats Response:', statsResponse.data);
         if (statsResponse.data && statsResponse.data.stats) {
           setComplaintStats(statsResponse.data.stats);
@@ -30,7 +32,7 @@ const AnalyticsDashboard = () => {
         }
 
         // Fetch Complaints by Category
-        const categoryResponse = await axios.get('/api/v1/admin/complaints/category-distribution', { withCredentials: true });
+        const categoryResponse = await axios.get(`${API_BASE_URL}/api/v1/admin/complaints/category-distribution`, { withCredentials: true });
         console.log('Category Response:', categoryResponse.data);
         if (categoryResponse.data && categoryResponse.data.complaintsByCategory) {
           setComplaintsByCategory(categoryResponse.data.complaintsByCategory);
@@ -39,7 +41,7 @@ const AnalyticsDashboard = () => {
         }
 
         // Fetch Complaint Trends
-        const trendsResponse = await axios.get('/api/v1/admin/complaints/trends', { withCredentials: true });
+        const trendsResponse = await axios.get(`${API_BASE_URL}/api/v1/admin/complaints/trends`, { withCredentials: true });
         console.log('Trends Response:', trendsResponse.data);
         if (trendsResponse.data && trendsResponse.data.complaintTrends) {
           // Format trend data for recharts (e.g., "1/2023" to "Jan 2023")

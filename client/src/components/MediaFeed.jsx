@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './MediaFeed.css'; // We'll create this CSS file later
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '');
+
 const MediaFeed = () => {
   const [media, setMedia] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ const MediaFeed = () => {
 
     const fetchMedia = async () => {
       try {
-        const response = await fetch('/api/v1/media-feed');
+        const response = await fetch(`${API_BASE_URL}/api/v1/media-feed`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
