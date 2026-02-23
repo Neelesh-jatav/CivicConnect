@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import '../App.css';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '');
+
 const Login = ({ onLoginSuccess, onClose }) => {
   const [view, setView] = useState('login'); // 'login', 'forgot', 'reset'
   const [email, setEmail] = useState('');
@@ -18,7 +20,7 @@ const Login = ({ onLoginSuccess, onClose }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5002/api/v1/login', {
+      const response = await fetch(`${API_BASE_URL}/api/v1/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +46,7 @@ const Login = ({ onLoginSuccess, onClose }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5002/api/v1/password/forgot', {
+      const response = await fetch(`${API_BASE_URL}/api/v1/password/forgot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail }),
@@ -80,7 +82,7 @@ const Login = ({ onLoginSuccess, onClose }) => {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5002/api/v1/password/reset', {
+      const response = await fetch(`${API_BASE_URL}/api/v1/password/reset`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail, otp, password: newPassword, confirmPassword: confirmNewPassword }),

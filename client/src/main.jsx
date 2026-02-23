@@ -6,9 +6,17 @@ import App from './App.jsx'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '')
 
+console.log('🌐 API_BASE_URL configured as:', API_BASE_URL)
+console.log('📍 Environment:', import.meta.env.MODE)
+
 const rewriteApiUrl = (url) => {
   if (typeof url !== 'string') return url
-  return url.replace(/^http:\/\/localhost:5002/i, API_BASE_URL)
+  // Handle both http:// and https:// localhost URLs
+  const rewritten = url.replace(/^https?:\/\/localhost:5002/i, API_BASE_URL)
+  if (rewritten !== url) {
+    console.log('🔄 URL rewritten:', { original: url, rewritten })
+  }
+  return rewritten
 }
 
 axios.interceptors.request.use((config) => {
