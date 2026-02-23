@@ -5,6 +5,10 @@ const sendToken = (user, statusCode, res) => {
   // Create Jwt token
   const token = user.getJwtToken();
 
+  // Debug: Check environment
+  console.log('📋 DEBUG: NODE_ENV =', process.env.NODE_ENV);
+  console.log('📋 DEBUG: COOKIE_EXPIRE =', process.env.COOKIE_EXPIRE);
+
   // Options for cookie
   // For cross-domain (Vercel frontend + Render backend), must use secure: true, sameSite: 'none'
   const isProduction = process.env.NODE_ENV === 'production';
@@ -18,7 +22,14 @@ const sendToken = (user, statusCode, res) => {
     path: '/', // Ensure cookie is available site-wide
   };
   
-  console.log(`🔐 Setting cookie with options:`, { secure: options.secure, sameSite: options.sameSite, isProduction });
+  console.log(`🔐 Setting token cookie with options:`, { 
+    secure: options.secure, 
+    sameSite: options.sameSite, 
+    httpOnly: options.httpOnly,
+    path: options.path,
+    isProduction,
+    tokenLength: token.length 
+  });
 
   res.status(statusCode).cookie('token', token, options).json({
     success: true,
