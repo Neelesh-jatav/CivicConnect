@@ -1,0 +1,9 @@
+{
+  "root": "client",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_API_BASE_URL": "https://civicconnect-5s1q.onrender.com"
+  }
+}
