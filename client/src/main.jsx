@@ -23,18 +23,24 @@ axios.interceptors.request.use((config) => {
 
 const nativeFetch = window.fetch.bind(window)
 window.fetch = (input, init) => {
+  // Ensure credentials are always sent for cross-domain requests
+  const finalInit = {
+    ...init,
+    credentials: 'include', // Send cookies with every request
+  }
+
   if (typeof input === 'string') {
-    return nativeFetch(rewriteApiUrl(input), init)
+    return nativeFetch(rewriteApiUrl(input), finalInit)
   }
 
   if (input instanceof Request) {
     const nextUrl = rewriteApiUrl(input.url)
     if (nextUrl !== input.url) {
-      return nativeFetch(new Request(nextUrl, input), init)
+      return nativeFetch(new Request(nextUrl, input), finalInit)
     }
   }
 
-  return nativeFetch(input, init)
+  return nativeFetch(input, finalInit)
 }
 
 createRoot(document.getElementById('root')).render(
