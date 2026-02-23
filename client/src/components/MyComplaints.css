@@ -13,3 +13,32 @@
   font-size: 14px;
   color: #666;
 }
+
+/* Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+  .complaint-user {
+    min-width: 100%;
+    gap: 4px;
+  }
+
+  .complaint-user-name {
+    font-size: 13px;
+  }
+
+  .complaint-user-email {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .complaint-user {
+    min-width: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

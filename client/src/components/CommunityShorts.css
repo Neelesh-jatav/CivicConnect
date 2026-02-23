@@ -343,3 +343,125 @@
     gap: 12px;
   }
 }
+/* Enhanced Mobile-First Responsive Styles */
+@media (max-width: 360px) {
+  .shorts-panel {
+    height: 280px;
+    margin: 0 -8px;
+  }
+
+  .shorts-header-sticky {
+    padding: 10px;
+  }
+
+  .shorts-list {
+    gap: 16px;
+    padding: 8px;
+  }
+
+  .short-card {
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+
+  .short-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border: 2px solid #fff !important;
+  }
+
+  .short-card > img:not(.short-avatar),
+  .short-card > video {
+    width: 80px !important;
+    height: 80px !important;
+    margin-right: 8px !important;
+  }
+
+  .short-header {
+    gap: 8px;
+  }
+
+  .short-caption {
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  .short-actions {
+    font-size: 10px;
+    gap: 10px;
+    padding-top: 8px;
+  }
+
+  .short-actions span {
+    word-break: break-word;
+  }
+}
+
+@media (min-width: 401px) and (max-width: 768px) {
+  .shorts-panel {
+    max-width: 95%;
+    height: 500px;
+  }
+
+  .short-card {
+    padding: 14px;
+  }
+
+  .short-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  .short-card > img:not(.short-avatar),
+  .short-card > video {
+    width: 110px !important;
+    height: 110px !important;
+    margin-right: 12px !important;
+  }
+
+  .short-caption {
+    font-size: 13px;
+  }
+
+  .short-actions {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .shorts-panel {
+    height: 647px;
+  }
+
+  .short-header.clickable {
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+
+  .short-header.clickable:hover {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .short-card,
+  .short-header.clickable,
+  .short-actions span {
+    transition: none;
+  }
+
+  .short-header.clickable:active {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .short-card {
+    border: 1px solid #374151;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+}

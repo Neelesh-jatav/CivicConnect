@@ -61,3 +61,71 @@
   cursor: pointer;
   font-weight: 600;
 }
+/* Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+  .shorts-panel {
+    padding: 0 8px;
+  }
+
+  .shorts-list {
+    gap: 16px;
+  }
+
+  .short-card {
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+
+  .short-header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .short-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .short-card img,
+  .short-card video {
+    max-height: 280px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .short-caption {
+    font-size: 13px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .short-actions {
+    gap: 12px;
+    padding-top: 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .short-card {
+    padding: 14px;
+  }
+
+  .short-card img,
+  .short-card video {
+    max-height: 320px;
+    margin-bottom: 11px;
+  }
+
+  .short-caption {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .short-card,
+  .short-actions span {
+    transition: none;
+  }
+}

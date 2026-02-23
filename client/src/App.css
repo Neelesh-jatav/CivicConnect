@@ -18,23 +18,28 @@
 .stats-row {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .stats-row > .stats-section {
   flex: 1;
+  min-width: 200px;
 }
 
 .home-content-layout {
   display: flex;
-  gap: 20px; /* Adjust gap as needed */
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .home-content-layout > :first-child {
-  flex: 2; /* TrendingIssues takes 2/3 of the space */
+  flex: 2;
+  min-width: 250px;
 }
 
 .home-content-layout > :last-child {
-  flex: 1; /* HomeMediaShorts takes 1/3 of the space */
+  flex: 1;
+  min-width: 250px;
 }
 
 /* Modal Animation */
@@ -49,3 +54,90 @@
   }
 }
 
+/* ============================================
+   RESPONSIVE APP LAYOUTS
+   ============================================ */
+
+/* Mobile (< 480px) */
+@media (max-width: 480px) {
+  .stats-row {
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .stats-row > .stats-section {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+
+  .home-content-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .home-content-layout > :first-child {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+
+  .home-content-layout > :last-child {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+
+  .Toastify__toast {
+    width: calc(100vw - 32px) !important;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
+}
+
+/* Tablet (480px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .stats-row {
+    gap: 12px;
+    flex-direction: row;
+  }
+
+  .stats-row > .stats-section {
+    flex: 1 1 calc(50% - 6px);
+    min-width: unset;
+  }
+
+  .home-content-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .home-content-layout > :first-child,
+  .home-content-layout > :last-child {
+    flex: 1 1 100%;
+    min-width: unset;
+  }
+
+  .Toastify__toast {
+    width: calc(100vw - 48px) !important;
+    margin-left: 24px !important;
+    margin-right: 24px !important;
+  }
+}
+
+/* Medium (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .stats-row > .stats-section {
+    flex: 1 1 calc(33.333% - 10.67px);
+  }
+
+  .home-content-layout > :first-child {
+    flex: 1.5;
+  }
+
+  .home-content-layout > :last-child {
+    flex: 1;
+  }
+}
+
+/* Desktop (> 1024px) */
+@media (min-width: 1025px) {
+  /* Default styles apply */
+}

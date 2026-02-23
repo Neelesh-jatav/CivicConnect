@@ -277,36 +277,254 @@ body {
   border-top: 1px solid var(--border-color);
   }
 
-/* Responsive Layout */
-@media (max-width: 768px) {
-  .header-content-wrapper {
+/* ============================================
+   RESPONSIVE LAYOUT - MOBILE FIRST
+   ============================================ */
+
+/* Mobile Devices (< 480px) */
+@media (max-width: 480px) {
+  .main-container {
+    flex-direction: column;
+    margin-left: 0;
+    margin-top: 120px; /* Increased for stacked header */
+  }
+
+  .App-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
     flex-wrap: wrap;
-    justify-content: center;
+  }
+
+  .header-content-wrapper {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .header-left,
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .logo-svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-text h1 {
+    font-size: 18px;
+  }
+
+  .logo-text .tagline {
+    font-size: 10px;
+  }
+
+  .hamburger-btn {
+    margin-right: 10px;
   }
 
   .sidebar {
-    width: 100%;
-    position: relative;
-    box-shadow: none;
+    display: none; /* Hidden by default on mobile */
+    width: calc(100% - 32px);
+    position: absolute;
+    top: 120px;
+    left: 16px;
     height: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    z-index: 999;
+  }
+
+  .sidebar.open {
+    display: flex;
   }
 
   .sidebar ul {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    width: 100%;
   }
 
   .sidebar li {
-    width: 45%;
-    margin: 5px;
+    width: 100%;
+    margin: 0;
   }
 
   .sidebar-link {
-    justify-content: center;
+    padding: 12px 16px;
+    font-size: 14px;
+    justify-content: flex-start;
+  }
+
+  .sidebar-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
   }
 
   .content {
-    padding: 15px;
+    padding: 12px;
+    height: auto;
+    min-height: calc(100vh - 120px);
+    flex: 1;
+  }
+
+  .footer {
+    padding: 16px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Tablet Devices (480px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .main-container {
+    margin-left: 0;
+    margin-top: 70px;
+    flex-direction: column;
+  }
+
+  .App-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+  }
+
+  .header-content-wrapper {
+    padding: 0 16px;
+    flex-wrap: nowrap;
+  }
+
+  .logo-svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-text h1 {
+    font-size: 20px;
+  }
+
+  .logo-text .tagline {
+    display: none;
+  }
+
+  .sidebar {
+    display: none;
+    width: calc(100% - 32px);
+    position: fixed;
+    top: 70px;
+    left: 16px;
+    height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    z-index: 999;
+  }
+
+  .sidebar.open {
+    display: flex;
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar li {
+    margin: 0;
+  }
+
+  .sidebar-link {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+
+  .content {
+    padding: 16px;
+    height: auto;
+    min-height: calc(100vh - 70px);
+  }
+
+  .footer {
+    padding: 16px;
+    font-size: 13px;
+  }
+}
+
+/* Medium Screens (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 220px; /* Slightly narrower */
+  }
+
+  .main-container {
+    margin-left: 220px;
+    margin-top: 60px;
+  }
+
+  .App-header {
+    left: 220px;
+    width: calc(100% - 220px);
+  }
+
+  .logo-text h1 {
+    font-size: 22px;
+  }
+
+  .sidebar-link {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .sidebar-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .hamburger-btn {
+    display: none;
+  }
+}
+
+/* Desktop & Large Screens (> 1024px) */
+@media (min-width: 1025px) {
+  /* Default desktop styles apply */
+  
+  .hamburger-btn {
+    display: none;
+  }
+}
+
+/* Orientation-specific */
+@media (orientation: landscape) and (max-height: 600px) {
+  .main-container {
+    margin-top: 50px;
+  }
+
+  .App-header {
+    height: 50px;
+  }
+
+  .content {
+    height: calc(100vh - 50px);
+    padding: 10px;
+  }
+}
+
+/* High-resolution displays */
+@media (-webkit-min-device-pixel-ratio: 2) and (max-width: 768px) {
+  .sidebar-icon,
+  .hamburger-btn svg {
+    filter: optimize-contrast;
   }
 }

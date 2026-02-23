@@ -499,3 +499,194 @@
     position: static;
   }
 }
+
+/* Mobile-First Responsive Styles */
+@media (max-width: 768px) {
+  .hero {
+    padding: 40px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+
+  .hero-content h2 {
+    font-size: 2em;
+    margin-bottom: 12px;
+  }
+
+  .hero-content p {
+    font-size: 0.95em;
+    margin-bottom: 20px;
+  }
+
+  .btn-cta {
+    padding: 10px 20px;
+    font-size: 0.95em;
+  }
+
+  .features {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .feature-card {
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .feature-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.2em;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 0.85em;
+  }
+
+  .section-header {
+    margin-bottom: 10px;
+  }
+
+  .partners-content h3 {
+    font-size: 14px;
+  }
+
+  .sponsored-badge-new {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  .your-impact-card {
+    padding: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 30px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-content h2 {
+    font-size: 1.6em;
+    margin-bottom: 10px;
+  }
+
+  .hero-content p {
+    font-size: 0.85em;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .btn-cta {
+    padding: 9px 16px;
+    font-size: 0.85em;
+    border-radius: 25px;
+  }
+
+  .btn-cta:hover {
+    transform: translateY(-1px);
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .feature-card {
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .feature-icon {
+    margin-bottom: 12px;
+  }
+
+  .feature-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.05em;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .feature-card p {
+    font-size: 0.8em;
+    line-height: 1.4;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .local-partners {
+    margin: 0 -12px;
+  }
+
+  .partners-content h3 {
+    font-size: 12px;
+  }
+
+  .sponsored-badge-new {
+    font-size: 9px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 6px rgba(255, 58, 0, 0.2);
+  }
+
+  .trending-card {
+    margin: 0;
+  }
+
+  .your-impact-card {
+    padding: 12px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-cta,
+  .feature-card,
+  .feature-card:hover {
+    transition: none;
+  }
+
+  .feature-card:hover,
+  .btn-cta:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .hero {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .feature-card {
+    border: 2px solid #dc5d20;
+  }
+
+  .btn-cta {
+    border: 2px solid #dc5d20;
+  }
+}

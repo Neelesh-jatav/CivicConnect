@@ -61,3 +61,80 @@
   font-size: 13px;
   color: #dc2626;
 }
+
+/* Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+  .trending-card {
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .trending-card h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .trending-list {
+    gap: 8px;
+  }
+
+  .trending-item {
+    grid-template-columns: 28px 1fr auto;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .trending-item .icon {
+    font-size: 16px;
+  }
+
+  .trending-item .label {
+    font-size: 13px;
+  }
+
+  .trending-item .count {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .muted {
+    font-size: 12px;
+  }
+
+  .error {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .trending-card {
+    padding: 14px;
+  }
+
+  .trending-card h3 {
+    font-size: 15px;
+  }
+
+  .trending-item .label {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trending-card,
+  .trending-item {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .trending-card {
+    border: 2px solid #374151;
+  }
+
+  .trending-item {
+    border: 1px solid #4b5563;
+  }
+}

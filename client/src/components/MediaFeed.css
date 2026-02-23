@@ -86,6 +86,106 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 480px) {
+  .media-feed-container {
+    padding: 12px;
+    margin: 0 -8px;
+    border-radius: 8px;
+    background-color: #f0f2f5;
+  }
+
+  .media-feed-container h2 {
+    font-size: 1.4em;
+    margin-bottom: 20px;
+  }
+
+  .media-reels-container {
+    gap: 16px;
+  }
+
+  .media-card {
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .media-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .media-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  .profile-avatar {
+    width: 36px;
+    height: 36px;
+    margin-right: 10px;
+    border-width: 2px;
+  }
+
+  .profile-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .media-image {
+    max-height: 280px;
+  }
+
+  .media-content {
+    padding: 12px 14px;
+  }
+
+  .media-content h3 {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+
+  .media-content p {
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .media-feed-container {
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  .media-feed-container h2 {
+    font-size: 1.6em;
+  }
+
+  .media-reels-container {
+    gap: 20px;
+  }
+
+  .media-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .profile-avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+
+  .profile-name {
+    font-size: 13px;
+  }
+
+  .media-content h3 {
+    font-size: 1.3em;
+  }
+
+  .media-content p {
+    font-size: 0.9em;
+  }
+}
+
 @media (max-width: 600px) {
   .media-feed-container {
     padding: 15px;
@@ -111,5 +211,41 @@
 
   .media-content p {
     font-size: 0.9em;
+  }
+}
+
+@media (min-width: 769px) {
+  .media-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+
+  .media-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-card {
+    transition: none;
+  }
+
+  .media-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .media-card {
+    border: 1px solid #333;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  .media-header {
+    border-bottom: 2px solid #333;
+  }
+
+  .profile-name {
+    font-weight: 700;
   }
 }

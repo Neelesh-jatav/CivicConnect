@@ -296,9 +296,15 @@
 /* ===== Mobile Responsive ===== */
 
 @media (max-width: 768px) {
+  .admin-form-modal {
+    padding: 12px;
+  }
+
   .admin-form-modal > div {
     max-width: 95%;
     max-height: 95vh;
+    padding: 12px 12px;
+    border-radius: 14px;
   }
 
   .create-ad-grid {
@@ -307,61 +313,213 @@
   }
 
   .create-ad-preview {
-    min-height: 200px;
-  }
-
-  .create-ad-header {
-    padding: 14px 16px;
-  }
-
-  .create-ad-header h2 {
-    font-size: 16px;
+    min-height: 180px;
+    margin-top: 8px;
   }
 
   .create-ad-content {
-    padding: 14px;
+    padding: 12px;
+    max-height: 85vh;
+  }
+
+  .create-ad-header {
+    display: flex;
+    padding: 12px 14px;
+  }
+
+  .create-ad-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .form-group label {
+    font-size: 11px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .create-ad-upload-area {
+    padding: 16px;
+    margin-top: 4px;
+  }
+
+  .create-ad-upload-area .upload-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .create-ad-upload-area .upload-text {
+    font-size: 12px;
+  }
+
+  .create-ad-upload-area .upload-hint {
+    font-size: 10px;
+  }
+
+  .create-ad-actions {
+    gap: 8px;
+    margin-top: -16px;
+  }
+
+  .cancel-btn,
+  .submit-btn {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  .create-ad-preview img {
+    max-width: 120px;
+    max-height: 160px;
   }
 }
 
 @media (max-width: 480px) {
   .admin-form-modal {
     padding: 8px;
+    align-items: flex-end;
   }
 
   .admin-form-modal > div {
-    border-radius: 14px;
+    max-width: 100%;
+    max-height: 98vh;
+    border-radius: 12px 12px 0 0;
+    padding: 10px 12px;
   }
 
   .create-ad-header {
-    padding: 12px 14px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
   }
 
   .create-ad-header h2 {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .close-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
   }
 
   .create-ad-content {
-    padding: 12px;
+    padding: 10px;
+    max-height: 90vh;
   }
 
-  .create-ad-grid {
+  .create-ad-form {
     gap: 10px;
   }
 
-  .create-ad-actions {
+  .create-ad-form form {
+    gap: 10px;
+  }
+
+  .form-group {
+    gap: 5px;
+  }
+
+  .form-group label {
+    font-size: 10px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .create-ad-error {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-left-width: 2px;
+  }
+
+  .create-ad-upload-area {
+    padding: 12px;
+    margin-top: 4px;
+    border-radius: 10px;
+  }
+
+  .create-ad-upload-area .upload-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .create-ad-upload-area .upload-text {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .create-ad-upload-area .upload-hint {
+    font-size: 9px;
+  }
+
+  .create-ad-preview {
+    min-height: 140px;
+    padding: 12px;
+    margin-top: 6px;
+  }
+
+  .create-ad-preview label {
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+
+  .create-ad-preview img {
+    max-width: 100px;
+    max-height: 140px;
+    border-radius: 10px;
+  }
+
+  .create-ad-preview-placeholder {
+    font-size: 32px;
+  }
+
+  .create-ad-grid {
     gap: 8px;
+  }
+
+  .create-ad-actions {
+    gap: 6px;
+    margin-top: -12px;
   }
 
   .cancel-btn,
   .submit-btn {
-    padding: 9px 12px;
-    font-size: 12px;
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: 8px;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .admin-form-modal > div,
+  .cancel-btn,
+  .submit-btn,
+  .create-ad-upload-area,
+  .form-group input,
+  .form-group select {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .admin-form-modal > div {
+    border: 2px solid #111827;
+  }
+
+  .form-group input,
+  .form-group select {
+    border: 2px solid #374151;
+  }
+
+  .create-ad-upload-area {
+    border-width: 3px;
+  }
+}

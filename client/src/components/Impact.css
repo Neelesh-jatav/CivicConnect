@@ -35,3 +35,65 @@
   font-size: 0.9em;
   color: #5a78a7;
 }
+/* Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+  .impact-card {
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .impact-card h3 {
+    font-size: 1.2em;
+    margin-bottom: 12px;
+  }
+
+  .impact-stats {
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .stat-item {
+    flex: 1;
+  }
+
+  .stat-value {
+    font-size: 1.4em;
+  }
+
+  .stat-label {
+    font-size: 0.75em;
+  }
+}
+
+@media (max-width: 768px) {
+  .impact-card {
+    padding: 16px;
+    border-radius: 13px;
+  }
+
+  .impact-card h3 {
+    font-size: 1.3em;
+  }
+
+  .stat-value {
+    font-size: 1.6em;
+  }
+
+  .stat-label {
+    font-size: 0.85em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-card {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .impact-card {
+    border: 2px solid #5a78a7;
+    box-shadow: 0 4px 8px rgba(90, 120, 167, 0.3);
+  }
+}
