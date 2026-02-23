@@ -23,7 +23,6 @@ import AdsCarousel from './components/AdsCarousel'; // New import for Ads Carous
 import AdminAds from './components/AdminAds'; // New import for Admin Ads
 import HomeMediaShorts from './components/HomeMediaShorts'; // New import for Home Media Shorts
 import PublicUserProfile from './components/PublicUserProfile'; // New import for Public User Profile
-import CivicConnectLogo from './assets/CivicConnectLogo.png';
 import Impact from './components/Impact';
 import TrendingIssues from './components/TrendingIssues';
 
@@ -33,7 +32,7 @@ function App() {
   const toggleAddAdminModal = () => {
     setShowAddAdminModal(!showAddAdminModal);
   };
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [, setSidebarOpen] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRaiseComplaintModal, setShowRaiseComplaintModal] = useState(false);
@@ -92,10 +91,6 @@ function App() {
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
   };
 
   const toggleRegisterModal = () => {
