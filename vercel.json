@@ -1,9 +1,5 @@
 {
-  "buildCommand": "cd client && npm install && npm run build",
+  "buildCommand": "npm --prefix client install && npm --prefix client run build",
   "outputDirectory": "client/dist",
-  "installCommand": "cd client && npm install",
-  "framework": "vite",
-  "env": {
-    "VITE_API_BASE_URL": "https://civicconnect-5s1q.onrender.com"
-  }
+  "installCommand": "npm --prefix client install"
 }
