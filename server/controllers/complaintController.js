@@ -7,6 +7,9 @@ import { uploadToCloudinary } from '../utils/uploadToCloudinary.js';
 import { verifyOtp } from './otpController.js'; // Import verifyOtp
 import User from '../models/User.js'; // Import User model
 import Notification from '../models/Notification.js'; // Import Notification model
+import otpGenerator from 'otp-generator';
+import sendEmail from '../utils/sendEmail.js';
+import { CLOUDINARY_FOLDERS } from '../config/cloudinaryFolders.js';
 
 // Create Complaint
 export const createComplaint = catchAsyncErrors(async (req, res, next) => {
@@ -43,7 +46,7 @@ export const createComplaint = catchAsyncErrors(async (req, res, next) => {
         const uploadedImage = await uploadToCloudinary(
           images[i].buffer,
           images[i].mimetype,
-          'CivicConnect/complaint_uploaded_images'
+          CLOUDINARY_FOLDERS.COMPLAINTS.EVIDENCE
         );
         imagesLinks.push(uploadedImage);
         console.log(`✅ Image ${i + 1} uploaded successfully`);
@@ -123,7 +126,7 @@ export const uploadTestImage = catchAsyncErrors(async (req, res, next) => {
     const result = await uploadToCloudinary(
       req.file.buffer,
       req.file.mimetype,
-      'CivicConnect/test_uploads'
+      CLOUDINARY_FOLDERS.TESTS
     );
 
     res.status(200).json({
@@ -163,21 +166,59 @@ export const getMyComplaints = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+// Get Officer Assigned Complaints
+export const getOfficerComplaints = catchAsyncErrors(async (req, res, next) => {
+  const complaints = await Complaint.find({ officer: req.user.id })
+    .populate('user', 'name email')
+    .populate('statusHistory.updatedBy', 'name');
+  res.status(200).json({
+    success: true,
+    complaints,
+  });
+});
+
 // Update Complaint Status (Admin)
 export const updateComplaint = catchAsyncErrors(async (req, res, next) => {
   if (!req.user || !req.user.id) {
     return next(new ErrorHandler('Unauthorized access', 401));
   }
-  const { status: newStatus, description, department, officer, resolutionImages, finalComments } = req.body;
+  const { status: newStatus, description, department, officer, finalComments } = req.body;
 
   if (!newStatus) {
     return next(new ErrorHandler('Please provide a new status for the complaint.', 400));
+  }
+
+  // CRITICAL: Prevent closing complaint directly via this endpoint. Must use OTP flow.
+  if (newStatus === 'Closed') {
+    return next(new ErrorHandler('Complaints cannot be closed directly. Please use the OTP verification process.', 400));
   }
 
   let complaint = await Complaint.findById(req.params.id);
 
   if (!complaint) {
     return next(new ErrorHandler('Complaint not found', 404));
+  }
+
+  // If user is officer, ensure they are assigned to this complaint
+  if (req.user.role === 'officer' && complaint.officer?.toString() !== req.user.id) {
+    return next(new ErrorHandler('You are not authorized to update this complaint.', 403));
+  }
+
+  // Handle resolution images upload if any
+  let resolutionImageLinks = [];
+  if (req.files && req.files.length > 0) {
+    for (let i = 0; i < req.files.length; i++) {
+      try {
+        const uploadedImage = await uploadToCloudinary(
+          req.files[i].buffer,
+          req.files[i].mimetype,
+          CLOUDINARY_FOLDERS.COMPLAINTS.RESOLUTION
+        );
+        resolutionImageLinks.push(uploadedImage);
+      } catch (cloudinaryError) {
+        console.error(`Cloudinary upload error:`, cloudinaryError);
+      }
+    }
   }
 
   // Update current status
@@ -208,9 +249,17 @@ export const updateComplaint = catchAsyncErrors(async (req, res, next) => {
       complaint.officer = undefined;
       historyEntry.description = description || 'Allocated to Municipal Officer';
     }
+  } else if (newStatus === 'In Progress') {
+    if (resolutionImageLinks.length > 0) {
+      if (!complaint.resolutionImages) complaint.resolutionImages = [];
+      complaint.resolutionImages.push(...resolutionImageLinks);
+    }
   } else if (newStatus === 'Resolved') {
-    complaint.resolutionImages = resolutionImages || [];
-    complaint.finalComments = finalComments || '';
+    if (resolutionImageLinks.length > 0) {
+      if (!complaint.resolutionImages) complaint.resolutionImages = [];
+      complaint.resolutionImages.push(...resolutionImageLinks);
+    }
+    complaint.finalComments = description || finalComments || '';
   }
 
   // Add to status history
@@ -218,10 +267,91 @@ export const updateComplaint = catchAsyncErrors(async (req, res, next) => {
 
   await complaint.save({ validateModifiedOnly: true });
 
+  // Notify User about status update
+  await Notification.create({
+    user: complaint.user,
+    title: `Complaint Update: ${newStatus}`,
+    message: `Your complaint "${complaint.title}" status has been updated to ${newStatus}.${description ? ` Remarks: ${description}` : ''}`,
+    link: '/my-complaints',
+  });
+
+  // Notify Officer if allocated
+  if (newStatus === 'Allocated to Officer' && officer) {
+    await Notification.create({
+      user: officer,
+      title: 'New Complaint Assigned',
+      message: `You have been assigned to complaint "${complaint.title}".`,
+      link: '/admin/dashboard',
+    });
+  }
+
+  // Notify Admins if updated by Officer
+  if (req.user.role === 'officer') {
+    const admins = await User.find({ role: 'admin' });
+    for (const admin of admins) {
+      await Notification.create({
+        user: admin._id,
+        title: 'Officer Update',
+        message: `Officer ${req.user.name} updated complaint "${complaint.title}" to ${newStatus}.`,
+        link: '/admin/dashboard',
+      });
+    }
+  }
+
   res.status(200).json({
     success: true,
     complaint,
   });
+});
+
+// Send OTP for Complaint Closure (Admin triggers this)
+export const sendComplaintClosureOtp = catchAsyncErrors(async (req, res, next) => {
+  const complaint = await Complaint.findById(req.params.id);
+
+  if (!complaint) {
+    return next(new ErrorHandler('Complaint not found', 404));
+  }
+
+  const user = await User.findById(complaint.user);
+  if (!user) {
+    return next(new ErrorHandler('User associated with this complaint not found', 404));
+  }
+
+  // Generate OTP
+  const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false });
+  
+  // Save OTP to user document (reusing existing OTP fields for simplicity)
+  user.otp = otp;
+  user.otpExpire = Date.now() + 15 * 60 * 1000; // 15 mins
+  await user.save({ validateBeforeSave: false });
+
+  try {
+    const message = `Your complaint "${complaint.title}" is being closed by the administrator. \n\nPlease provide the following OTP to the administrator to verify and close the complaint: \n\n${otp}\n\nThis OTP is valid for 15 minutes.`;
+
+    await sendEmail({
+      email: user.email,
+      subject: 'CivicConnect Complaint Closure OTP',
+      message,
+    });
+
+    // Notify User about OTP
+    await Notification.create({
+      user: user._id,
+      title: 'OTP Sent for Closure',
+      message: `An OTP has been sent to your email for closing complaint "${complaint.title}". Please share it with the officer.`,
+      link: '/my-complaints',
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `OTP sent to user's email (${user.email})`,
+    });
+  } catch (error) {
+    user.otp = undefined;
+    user.otpExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(new ErrorHandler('Failed to send OTP email.', 500));
+  }
 });
 
 // Close Complaint with OTP
@@ -246,8 +376,20 @@ export const closeComplaintWithOtp = catchAsyncErrors(async (req, res, next) => 
     return next(new ErrorHandler('Complaint not found', 404));
   }
 
-  // OTP is assumed to be verified by a separate frontend step
-  // No need to re-verify here, just proceed with closing the complaint.
+  // Verify OTP
+  const user = await User.findById(complaint.user);
+  if (!user) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
+  if (!user.otp || user.otp !== otp || user.otpExpire < Date.now()) {
+    return next(new ErrorHandler('Invalid or expired OTP', 400));
+  }
+
+  // Clear OTP after successful verification
+  user.otp = undefined;
+  user.otpExpire = undefined;
+  await user.save({ validateBeforeSave: false });
 
   // Upload resolution images to Cloudinary
   const resolutionImageLinks = [];
@@ -257,7 +399,7 @@ export const closeComplaintWithOtp = catchAsyncErrors(async (req, res, next) => 
         const uploadedImage = await uploadToCloudinary(
           resolutionImages[i].buffer,
           resolutionImages[i].mimetype,
-          'CivicConnect/complaint_resolution_images'
+          CLOUDINARY_FOLDERS.COMPLAINTS.RESOLUTION
         );
         resolutionImageLinks.push(uploadedImage);
       } catch (cloudinaryError) {
@@ -281,6 +423,14 @@ export const closeComplaintWithOtp = catchAsyncErrors(async (req, res, next) => 
   });
 
   await complaint.save({ validateModifiedOnly: true });
+
+  // Notify User about closure
+  await Notification.create({
+    user: complaint.user,
+    title: 'Complaint Closed',
+    message: `Your complaint "${complaint.title}" has been successfully resolved and closed.`,
+    link: '/my-complaints',
+  });
 
   res.status(200).json({
     success: true,

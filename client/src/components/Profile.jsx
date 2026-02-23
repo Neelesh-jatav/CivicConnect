@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import '../App.css';
+import './Profile.css';
+import MyComplaints from './MyComplaints';
 import MyUploadedMedia from './MyUploadedMedia';
 import MediaUpload from './MediaUpload';
 import Modal from './Modal';
@@ -9,11 +11,11 @@ import './TrendingIssues.css';
 
 const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }) => {
   const [activeTab, setActiveTab] = useState('complaints');
-  const [complaints, setComplaints] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [requireConfirmation, setRequireConfirmation] = useState(false);
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [adminResolutions, setAdminResolutions] = useState([]);
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -35,49 +37,47 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
   const [isCropping, setIsCropping] = useState(false);
   const canvasRef = React.useRef(null);
 
+
   useEffect(() => {
     if (user) {
-      if (activeTab === 'complaints') {
-        fetchMyComplaints();
-      } else if (activeTab === 'statistics') {
+      if (activeTab === 'statistics') {
         fetchStatistics();
+      } else if (activeTab === 'data-uploaded' && (user.role === 'admin' || user.role === 'officer')) {
+        fetchAdminResolutions();
       }
     }
   }, [activeTab, user]);
 
   useEffect(() => {
     if (activeTab === 'connections') {
-      const statuses = JSON.parse(localStorage.getItem('connectionStatuses') || '{}');
-      const details = JSON.parse(localStorage.getItem('connectedUsersDetails') || '{}');
-      const users = Object.keys(statuses)
-        .filter(id => statuses[id] === 'connected')
-        .map(id => details[id])
-        .filter(u => u);
-      setConnectedUsers(users);
+      const fetchConnections = async () => {
+        try {
+          const response = await fetch('http://localhost:5002/api/v1/me', {
+            credentials: 'include',
+          });
+          const data = await response.json();
+          if (data.success && data.user) {
+            setConnectedUsers(data.user.connections || []);
+          }
+        } catch (error) {
+          console.error('Error fetching connections:', error);
+          const statuses = JSON.parse(localStorage.getItem('connectionStatuses') || '{}');
+          const details = JSON.parse(localStorage.getItem('connectedUsersDetails') || '{}');
+          const users = Object.keys(statuses)
+            .filter(id => statuses[id] === 'connected')
+            .map(id => details[id])
+            .filter(u => u);
+          setConnectedUsers(users);
+        }
+      };
+      fetchConnections();
     }
   }, [activeTab]);
-
-  const fetchMyComplaints = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:5002/api/v1/mycomplaints', {
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (data.success) {
-        setComplaints(data.complaints || []);
-      }
-    } catch (err) {
-      console.error('Error fetching complaints:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchStatistics = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5002/api/v1/mycomplaints', {
+      const response = await fetch('http://localhost:5002/api/v1/my-complaints', {
         credentials: 'include',
       });
       const data = await response.json();
@@ -101,6 +101,108 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchAdminResolutions = async () => {
+    setLoading(true);
+    try {
+      let url = 'http://localhost:5002/api/v1/complaints';
+      if (user.role === 'officer') {
+        url = 'http://localhost:5002/api/v1/officer/complaints';
+      }
+
+      const response = await fetch(url, {
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success && data.complaints) {
+        // Filter complaints resolved/closed by this admin with images
+        const filtered = data.complaints.filter(c => {
+          const hasImages = c.resolutionImages && c.resolutionImages.length > 0;
+          if (!hasImages) return false;
+
+          // Check if this admin (user._id) is in statusHistory for Resolved/Closed
+          // updatedBy can be an object (populated) or id string
+          return c.statusHistory.some(h =>
+            (h.status === 'Resolved' || h.status === 'Closed') &&
+            (h.updatedBy?._id === user._id || h.updatedBy === user._id)
+          );
+        });
+        setAdminResolutions(filtered);
+      }
+    } catch (err) {
+      console.error('Error fetching admin resolutions:', err);
+      toast.error('Failed to fetch uploaded data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const executeDisconnect = async (userId) => {
+    try {
+      const response = await fetch('http://localhost:5002/api/v1/user/disconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Disconnected successfully');
+        setConnectedUsers(prev => prev.filter(u => u._id !== userId));
+        
+        // Sync with localStorage for HomeMediaShorts
+        const statuses = JSON.parse(localStorage.getItem('connectionStatuses') || '{}');
+        if (statuses[userId]) {
+          statuses[userId] = 'none';
+          localStorage.setItem('connectionStatuses', JSON.stringify(statuses));
+        }
+      } else {
+        toast.error(data.message || 'Failed to disconnect');
+      }
+    } catch (error) {
+      console.error('Error disconnecting:', error);
+      toast.error('An error occurred');
+    }
+  };
+
+  const handleDisconnect = (userId, userName) => {
+    const ConfirmAction = ({ closeToast }) => (
+      <div>
+        <p style={{ margin: '0 0 10px', fontSize: '14px', color: '#333' }}>
+          Disconnect from <strong>{userName || 'User'}</strong>?
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <button
+            onClick={closeToast}
+            style={{ padding: '6px 12px', background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              executeDisconnect(userId);
+              closeToast();
+            }}
+            style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+          >
+            Disconnect
+          </button>
+        </div>
+      </div>
+    );
+
+    toast(<ConfirmAction />, {
+      position: "top-center",
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,
+      icon: false
+    });
   };
 
   const changePasswordHandler = async (e) => {
@@ -349,7 +451,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
 
           <div className="profile-stats">
             <div className="stat-item">
-              <span className="stat-number">{complaints.length || 0}</span>
+              <span className="stat-number">{statistics?.totalComplaints || 0}</span>
               <span className="stat-label">Complaints</span>
             </div>
             <div className="stat-item">
@@ -404,6 +506,14 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
           >
             Your Media
           </button>
+          {(user.role === 'admin' || user.role === 'officer') && (
+            <button
+              className={`tab ${activeTab === 'data-uploaded' ? 'active' : ''}`}
+              onClick={() => setActiveTab('data-uploaded')}
+            >
+              Data Uploaded
+            </button>
+          )}
           <button
             className={`tab ${activeTab === 'connections' ? 'active' : ''}`}
             onClick={() => setActiveTab('connections')}
@@ -414,47 +524,8 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
 
         {/* Tab Content */}
         <div className="tab-content">
-          {/* My Complaints Tab */}
           {activeTab === 'complaints' && (
-            <div className="complaints-card-container">
-              <div className="complaints-toolbar">
-                <input type="text" placeholder="Search complaints..." className="search-box" />
-                </div>
-              <div className="complaints-list">
-                {loading ? (
-                  <p>Loading complaints...</p>
-                ) : complaints.length > 0 ? (
-                  complaints.map((complaint) => (
-                    <div key={complaint._id} className="complaint-row">
-                      <div className="complaint-id">#{complaint._id.substr(-4)}</div>
-                      <div className="complaint-img-box">
-                        {complaint.images && complaint.images.length > 0 ? (
-                          <img src={complaint.images[0].url} alt="Complaint" />
-                        ) : (
-                          <span style={{ fontSize: '20px' }}>📷</span>
-                        )}
-                      </div>
-                      <div className="complaint-main">
-                        <h4>{complaint.title}</h4>
-                        <div className="complaint-meta">
-                          {new Date(complaint.createdAt).toLocaleDateString()} • {complaint.district}
-                        </div>
-                      </div>
-                      <div className="complaint-user">
-                        <strong>{complaint.category}</strong>
-                        <span>{complaint.department || 'Unassigned'}</span>
-                      </div>
-                      <div className={`status-pill status-${complaint.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                        {complaint.status === 'Allocated to Officer' ? 'In Progress' : complaint.status}
-                      </div>
-                      <button className="primary-btn">View</button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty-state">No complaints yet. <a onClick={() => setCurrentView('home')}>File one now!</a></p>
-                )}
-              </div>
-            </div>
+            <MyComplaints user={user} />
           )}
 
           {/* Statistics Tab */}
@@ -471,7 +542,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
                       <div className="impact-card active-reporter">
                         <div className="impact-icon">👤</div>
                         <h4>Active Reporter</h4>
-                        <p>{complaints.length || 0}+ complaints filed</p>
+                        <p>{statistics?.totalComplaints || 0}+ complaints filed</p>
                       </div>
                       <div className="impact-card problem-solver">
                         <div className="impact-icon">✅</div>
@@ -569,6 +640,40 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
             <MyUploadedMedia />
           )}
 
+          {activeTab === 'data-uploaded' && (user.role === 'admin' || user.role === 'officer') && (
+            <div className="admin-resolutions-container">
+              <h3 style={{ marginBottom: '20px' }}>Resolution Images Uploaded</h3>
+              {loading ? (
+                <p>Loading data...</p>
+              ) : adminResolutions.length === 0 ? (
+                <p>No resolution images uploaded by you found.</p>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                  {adminResolutions.flatMap(c =>
+                    c.resolutionImages.map((img, idx) => ({ ...img, complaintId: c._id, complaintTitle: c.title, key: `${c._id}-${idx}` }))
+                  ).map(item => (
+                    <div key={item.key} style={{ border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', background: '#fff' }}>
+                      <img
+                        src={item.url}
+                        alt="Resolution"
+                        style={{ width: '100%', height: '150px', objectFit: 'cover', cursor: 'pointer' }}
+                        onClick={() => window.open(item.url, '_blank')}
+                      />
+                      <div style={{ padding: '10px' }}>
+                        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '600', marginBottom: '4px' }}>
+                          ID: {item.complaintId.substr(-6).toUpperCase()}
+                        </div>
+                        <div style={{ fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#1f2937' }} title={item.complaintTitle}>
+                          {item.complaintTitle}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'connections' && (
             <div className="connections-container">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -621,14 +726,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
                         <div style={{ fontWeight: '600', fontSize: '13px', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name || 'User'}</div>
                         <button
                           style={{ fontSize: '11px', padding: '4px 10px', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                          onClick={() => {
-                            if (window.confirm('Disconnect?')) {
-                              const statuses = JSON.parse(localStorage.getItem('connectionStatuses') || '{}');
-                              statuses[u._id] = 'none';
-                              localStorage.setItem('connectionStatuses', JSON.stringify(statuses));
-                              setConnectedUsers(prev => prev.filter(user => user._id !== u._id));
-                            }
-                          }}
+                          onClick={() => handleDisconnect(u._id, u.name)}
                         >
                           Disconnect
                         </button>

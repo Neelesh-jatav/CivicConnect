@@ -107,7 +107,7 @@ const Register = ({ isAdminRegistration, isOfficerRegistration, onClose }) => {
       formData.append('verificationToken', verificationToken);
 
       if (avatar) formData.append('avatar', avatar);
-      if (isAdminRegistration) formData.append('role', userType);
+      if (isAdminRegistration) formData.append('role', 'admin');
       if (isOfficerRegistration) formData.append('officerLevel', officerLevel);
 
       const response = await fetch('http://localhost:5002/api/v1/register', {

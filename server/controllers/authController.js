@@ -7,6 +7,7 @@ import sendEmail from '../utils/sendEmail.js';
 import jwt from 'jsonwebtoken';
 import cloudinary from '../config/cloudinary.js';
 import { configDotenv } from 'dotenv';
+import { CLOUDINARY_FOLDERS } from '../config/cloudinaryFolders.js';
 
 configDotenv();
 
@@ -60,15 +61,23 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
 
   if (typeof req.body.officerLevel === 'string' && ['A', 'B'].includes(req.body.officerLevel)) {
     user.officerLevel = req.body.officerLevel;
+    user.role = 'officer';
   }
 
   // Handle avatar upload to Cloudinary
   if (avatarFile) {
     const b64 = Buffer.from(avatarFile.buffer).toString("base64");
     let dataURI = "data:" + avatarFile.mimetype + ";base64," + b64;
+    
+    let folder = CLOUDINARY_FOLDERS.PROFILES.USERS;
+    if (user.role === 'admin') {
+      folder = CLOUDINARY_FOLDERS.PROFILES.ADMINS;
+    } else if (user.officerLevel) {
+      folder = CLOUDINARY_FOLDERS.PROFILES.OFFICERS;
+    }
 
     const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'CivicConnect/profile_images',
+      folder: folder,
       width: 150,
       crop: "scale"
     });
@@ -215,7 +224,7 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 
 // Get Logged In User
 export const getMe = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id).populate('connections', 'name avatar email role');
 
   res.status(200).json({
     success: true,
@@ -324,8 +333,15 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
     const b64 = Buffer.from(avatarFile.buffer).toString("base64");
     let dataURI = "data:" + avatarFile.mimetype + ";base64," + b64;
 
+    let folder = CLOUDINARY_FOLDERS.PROFILES.USERS;
+    if (user.role === 'admin') {
+      folder = CLOUDINARY_FOLDERS.PROFILES.ADMINS;
+    } else if (user.officerLevel) {
+      folder = CLOUDINARY_FOLDERS.PROFILES.OFFICERS;
+    }
+
     const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'CivicConnect/profile_images',
+      folder: folder,
       width: 150,
       crop: "scale"
     });
@@ -345,4 +361,80 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
     success: true,
     user,
   });
+});
+
+// Connect User (Mutual)
+export const connectUser = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  const targetUser = await User.findById(req.body.userId);
+
+  if (!targetUser) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
+  if (!user.connections) user.connections = [];
+  if (!targetUser.connections) targetUser.connections = [];
+
+  // Add to current user's connections
+  if (!user.connections.includes(targetUser._id)) {
+    user.connections.push(targetUser._id);
+    await user.save({ validateBeforeSave: false });
+  }
+
+  // Add to target user's connections (Mutual)
+  if (!targetUser.connections.includes(user._id)) {
+    targetUser.connections.push(user._id);
+    await targetUser.save({ validateBeforeSave: false });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Connected successfully',
+  });
+});
+
+// Disconnect User (Mutual)
+export const disconnectUser = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  const targetUser = await User.findById(req.body.userId);
+
+  if (!targetUser) {
+    return next(new ErrorHandler('User not found', 404));
+  }
+
+  user.connections = user.connections.filter(id => id.toString() !== targetUser._id.toString());
+  targetUser.connections = targetUser.connections.filter(id => id.toString() !== user._id.toString());
+
+  await user.save({ validateBeforeSave: false });
+  await targetUser.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    message: 'Disconnected successfully',
+  });
+});
+
+// Send Feedback
+export const sendFeedback = catchAsyncErrors(async (req, res, next) => {
+  const { feedback } = req.body;
+  const user = req.user;
+
+  if (!feedback) {
+    return next(new ErrorHandler('Please provide feedback message', 400));
+  }
+
+  try {
+    await sendEmail({
+      email: 'neeleshkumar22j@gmail.com',
+      subject: `CivicConnect Feedback from ${user.name}`,
+      message: `User: ${user.name} (${user.email})\n\nFeedback:\n${feedback}`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Feedback sent successfully',
+    });
+  } catch (error) {
+    return next(new ErrorHandler('Failed to send feedback email', 500));
+  }
 });

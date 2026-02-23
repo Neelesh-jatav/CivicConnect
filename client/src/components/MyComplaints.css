@@ -1,0 +1,15 @@
+.complaint-user {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.complaint-user-name {
+  font-weight: 600;
+}
+
+.complaint-user-email {
+  font-size: 14px;
+  color: #666;
+}

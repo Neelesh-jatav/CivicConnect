@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
-const Feedback = () => {
+const Feedback = ({ user }) => {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you would send this to a backend or email service
-    setSubmitted(true);
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:5002/api/v1/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSubmitted(true);
+        toast.success('Feedback sent successfully!');
+      } else {
+        toast.error(data.message || 'Failed to send feedback');
+      }
+    } catch (error) {
+      toast.error('An error occurred while sending feedback');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!user) {
+    return (
+      <div className="feedback-container" style={{ maxWidth: 400, margin: '40px auto', padding: 24, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+        <p>Please log in to send feedback.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="feedback-container" style={{ maxWidth: 400, margin: '40px auto', padding: 24, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
@@ -28,8 +56,8 @@ const Feedback = () => {
             placeholder="Enter your feedback here..."
             required
           />
-          <button type="submit" className="btn btn-primary" style={{ marginTop: 12 }}>
-            Submit Feedback
+          <button type="submit" className="btn btn-primary" style={{ marginTop: 12 }} disabled={loading}>
+            {loading ? 'Sending...' : 'Submit Feedback'}
           </button>
         </form>
       )}

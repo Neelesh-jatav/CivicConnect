@@ -3,23 +3,24 @@ import axios from 'axios';
 import ComplaintDetailsModal from './ComplaintDetailsModal';
 
 import '../App.css';
+import './MyComplaints.css';
 
 const MyComplaints = ({ user }) => {
   const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   useEffect(() => {
-    if (!user || !user.email) {
+    if (!user) {
       return;
     }
 
     const fetchMyComplaints = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`http://localhost:5002/api/v1/mycomplaints`, {
+        const { data } = await axios.get(`http://localhost:5002/api/v1/my-complaints`, {
           withCredentials: true,
         });
 
@@ -102,8 +103,8 @@ const MyComplaints = ({ user }) => {
                     </div>
 
                     <div className="complaint-user">
-                      <strong>{user?.name || 'N/A'}</strong>
-                      <span>{user?.email || 'N/A'}</span>
+                      <strong className="complaint-user-name">{user?.name || 'N/A'}</strong>
+                      <span className="complaint-user-email">{user?.email || 'N/A'}</span>
                     </div>
 
                     <div className={`status-pill status-${complaint.status.toLowerCase().replace(/\s/g, '-')}`}>

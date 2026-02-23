@@ -1,0 +1,38 @@
+.profile-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-tabs .tab {
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4b5563;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.profile-tabs .tab:hover {
+  background: linear-gradient(to right, #f4dcd0, #ee795c);
+  color: #111827;
+  transform: translateY(-2px);
+}
+
+.profile-tabs .tab.active {
+  background: linear-gradient(to right, #ff955f, #ff3100);
+  color: #ffffff;
+  border-color: #dc5d20;
+}
+
+.profile-tabs .tab.active:hover {
+  background-color: #ea580c;
+  border-color: #ea580c;
+  box-shadow: 0 6px 16px rgba(220, 93, 32, 0.35);
+  transform: translateY(-3px);
+}

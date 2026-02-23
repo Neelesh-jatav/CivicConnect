@@ -24,7 +24,7 @@ body {
   flex: 1;
   padding: 20px 20px 0px 20px;
   background-color: var(--bg-primary);
-  overflow-y: auto;
+  /* overflow-y: auto; */
   height: calc(100vh - 60px);
 }
 

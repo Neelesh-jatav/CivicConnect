@@ -19,7 +19,7 @@ const MyComplaints = ({ user }) => {
     const fetchMyComplaints = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`http://localhost:5002/api/v1/mycomplaints`, {
+        const { data } = await axios.get(`http://localhost:5002/api/v1/my-complaints`, {
           withCredentials: true,
         });
 

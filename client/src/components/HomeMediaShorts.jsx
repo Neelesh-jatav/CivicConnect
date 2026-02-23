@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Modal from './Modal';
 import { toast } from 'react-toastify';
-import './HomeMediaShorts.css';
+import './CommunityShorts.css';
 
 const HomeMediaShorts = ({ onUserClick, onConnectionChange }) => {
   const [media, setMedia] = useState([]);
@@ -100,33 +100,69 @@ const HomeMediaShorts = ({ onUserClick, onConnectionChange }) => {
     }
   };
 
+  const disconnectUser = async (userId) => {
+    try {
+      const response = await fetch('http://localhost:5002/api/v1/user/disconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setConnectionStatuses(prev => ({ ...prev, [userId]: 'none' }));
+        if (onConnectionChange) {
+          onConnectionChange();
+        }
+        toast.info("Disconnected");
+      }
+    } catch (error) {
+      console.error('Error disconnecting user:', error);
+      toast.error("Failed to disconnect");
+    }
+  };
+
   const handleConnectToggle = async (user, currentStatus, e) => {
     e.stopPropagation();
     const userId = user?._id;
     if (!userId) return;
 
     if (currentStatus === 'connected' || currentStatus === 'pending') {
-      if (window.confirm("Are you sure you want to disconnect?")) {
-        try {
-          const response = await fetch('http://localhost:5002/api/v1/user/disconnect', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId }),
-            credentials: 'include',
-          });
-          const data = await response.json();
-          if (data.success) {
-            setConnectionStatuses(prev => ({ ...prev, [userId]: 'none' }));
-            if (onConnectionChange) {
-              onConnectionChange();
-            }
-          }
-        } catch (error) {
-          console.error('Error disconnecting user:', error);
-        }
-      }
+      const ConfirmAction = ({ closeToast }) => (
+        <div>
+          <p style={{ margin: '0 0 10px', fontSize: '14px', color: '#333' }}>
+            Disconnect from <strong>{user.name || 'User'}</strong>?
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <button
+              onClick={closeToast}
+              style={{ padding: '6px 12px', background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                disconnectUser(userId);
+                closeToast();
+              }}
+              style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+            >
+              Disconnect
+            </button>
+          </div>
+        </div>
+      );
+
+      toast(<ConfirmAction />, {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+        icon: false
+      });
     } else {
       try {
         const response = await fetch('http://localhost:5002/api/v1/user/connect', {
@@ -224,19 +260,8 @@ const HomeMediaShorts = ({ onUserClick, onConnectionChange }) => {
               </div>
               <button
                 onClick={(e) => handleConnectToggle(item.user, connectionStatuses[item.user?._id] || 'none', e)}
-                style={{
-                  marginLeft: 'auto',
-                  padding: '6px 12px',
-                  borderRadius: '20px',
-                  border: '1px solid #dc5d20',
-                  background: (connectionStatuses[item.user?._id] === 'connected' || connectionStatuses[item.user?._id] === 'pending') ? 'transparent' : '#dc5d20',
-                  color: (connectionStatuses[item.user?._id] === 'connected' || connectionStatuses[item.user?._id] === 'pending') ? '#dc5d20' : '#fff',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
               >
-                {connectionStatuses[item.user?._id] === 'connected' ? 'Disconnect' : (connectionStatuses[item.user?._id] === 'pending' ? 'Requested' : 'Connect')}
+                {connectionStatuses[item.user?._id] === 'connected' ? 'Connected' : (connectionStatuses[item.user?._id] === 'pending' ? 'Pending' : 'Follow')}
               </button>
             </div>
 
@@ -244,11 +269,16 @@ const HomeMediaShorts = ({ onUserClick, onConnectionChange }) => {
             {item.type === "video" ? (
               <video src={item.url} controls muted />
             ) : (
-              <img src={item.url} alt="post" />
+              <img loading="lazy" src={item.url} alt="post" />
             )}
 
             {/* Caption */}
-            <p className="short-caption">{item.title || item.description || item.caption}</p>
+            <p className="short-caption">
+              {item.title && <strong>{item.title}</strong>}
+              {item.title && item.description && <br />}
+              {item.description}
+              {!item.description && !item.title && item.caption}
+            </p>
 
             {/* Actions */}
             <div className="short-actions">
@@ -261,29 +291,29 @@ const HomeMediaShorts = ({ onUserClick, onConnectionChange }) => {
 
             {/* Comment Input */}
             {activeCommentId === item._id && (
-              <div className="comments-section" style={{ marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+              <div className="comments-section" style={{ marginTop: '12px', borderTop: '1px solid #eee', paddingTop: '12px' }}>
                 {/* Comments List */}
                 {item.comments && item.comments.length > 0 && (
-                  <div className="comments-list" style={{ maxHeight: '150px', overflowY: 'auto', marginBottom: '10px' }}>
+                  <div className="comments-list" style={{ maxHeight: '120px', overflowY: 'auto', marginBottom: '12px' }}>
                     {item.comments.map((comment, index) => (
-                      <div key={index} className="comment-item" style={{ marginBottom: '6px', fontSize: '13px' }}>
-                        <strong>{comment.user?.name || 'User'}: </strong>
-                        <span>{comment.text}</span>
+                      <div key={index} className="comment-item" style={{ marginBottom: '8px', fontSize: '13px' }}>
+                        <strong style={{ color: '#1f2937' }}>{comment.user?.name || 'User'}: </strong>
+                        <span style={{ color: '#6b7280' }}>{comment.text}</span>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {/* Input */}
-                <div className="comment-input-container" style={{ display: 'flex', gap: '8px' }}>
+                <div className="comment-input-container" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="text"
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Add a comment..."
-                    style={{ flex: 1, padding: '8px', borderRadius: '20px', border: '1px solid #ddd', fontSize: '13px' }}
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: '20px', border: '1px solid #d1d5db', fontSize: '13px', backgroundColor: '#f9fafb', color: '#1f2937' }}
                   />
-                  <button onClick={() => handleCommentSubmit(item._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc5d20', fontWeight: 'bold' }}>
+                  <button onClick={() => handleCommentSubmit(item._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff7a18', fontWeight: 'bold', fontSize: '13px', padding: '0 4px' }}>
                     Post
                   </button>
                 </div>

@@ -1,30 +1,63 @@
 .shorts-panel {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.short-card {
-  background: #ffffff;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px;
+  width: 100%;
+  background: transparent;
 }
 
 .shorts-header-sticky {
-  color: #5a78a7;
+  margin-bottom: 12px;
+}
+
+.shorts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.short-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
 }
 
 .short-header {
-  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.short-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.short-card img,
+.short-card video {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
 .short-caption {
-  color: #555;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #374151;
+  margin-bottom: 12px;
 }
 
 .short-actions {
-  color: #5a78a7;
+  display: flex;
+  gap: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  font-size: 14px;
+}
+
+.short-actions span {
+  cursor: pointer;
+  font-weight: 600;
 }

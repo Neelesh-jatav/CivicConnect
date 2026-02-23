@@ -5,7 +5,7 @@ import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
 
 // Get all officers (users with officerLevel set)
 export const getOfficers = catchAsyncErrors(async (req, res, next) => {
-  const officers = await User.find({ officerLevel: { $ne: null } }).select('name officerLevel');
+  const officers = await User.find({ officerLevel: { $ne: null } }).select('name email officerLevel');
   console.log('Fetched officers from DB (getOfficers):', officers); // Debugging
   res.status(200).json({
     success: true,

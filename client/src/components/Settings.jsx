@@ -2,7 +2,7 @@ import React from 'react';
 import Feedback from './Feedback';
 import './Settings.css';
 
-const Settings = ({ theme, toggleTheme }) => {
+const Settings = ({ theme, toggleTheme, user }) => {
   return (
     <div className="settings-container">
       <h2>Settings</h2>
@@ -27,7 +27,7 @@ const Settings = ({ theme, toggleTheme }) => {
 
       <div className="settings-section">
         <h3>Feedback</h3>
-        <Feedback />
+        <Feedback user={user} />
       </div>
     </div>
   );

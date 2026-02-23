@@ -15,6 +15,7 @@ import Settings from './components/Settings';
 
 import MyComplaints from './components/MyComplaints'; // New import
 import AdminDashboard from './components/AdminDashboard'; // New import
+import OfficerDashboard from './components/OfficerDashboard'; // New import
 import MediaUpload from './components/MediaUpload'; // New import for MediaUpload
 import MediaFeed from './components/MediaFeed'; // New import for MediaFeed
 import AnalyticsDashboard from './components/AnalyticsDashboard'; // New import for AnalyticsDashboard
@@ -133,6 +134,9 @@ function App() {
     if (loggedInUser.role === 'admin') {
       setCurrentView('adminDashboard');
     }
+    if (loggedInUser.role === 'officer') {
+      setCurrentView('officerDashboard');
+    }
     setShowLoginModal(false); // Close login modal
   };
 
@@ -205,7 +209,6 @@ function App() {
             </div>
           )}
           <div className="header-right">
-            <input type="text" placeholder="Search..." className="search-input" />
             {!isLoggedIn ? (
               <button className="btn btn-login" onClick={toggleLoginModal}>Login</button>
             ) : (
@@ -233,7 +236,13 @@ function App() {
                 onError={(e) => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'; }}
               />
               <div>
-                <span className="username">{user?.email?.split('@')[0]}</span>
+                <span className="username">{user?.name}</span>
+                {user?.role === 'admin' && (
+                  <span style={{ display: 'block', fontSize: '12px', color: '#dc5d20', fontWeight: 'bold' }}>Admin</span>
+                )}
+                {user?.role === 'officer' && (
+                  <span style={{ display: 'block', fontSize: '12px', color: '#2563eb', fontWeight: 'bold' }}>Officer {user?.officerLevel ? `Level ${user.officerLevel}` : ''}</span>
+                )}
                 <span className="phone">{user?.phone}</span>
               </div>
               <span className="verified">✔</span>
@@ -282,6 +291,16 @@ function App() {
                   onClick={() => setCurrentView("ads")}
                 >
                   📢 <span>Ads & Sponsors</span>
+                </a>
+              </div>
+            )}
+
+            {/* Officer */}
+            {user && user.role === 'officer' && (
+              <div className="sidebar-section">
+                <p className="section-title">OFFICER PORTAL</p>
+                <a className={`sidebar-item ${currentView === 'officerDashboard' ? 'active' : ''}`} onClick={() => { setCurrentView('officerDashboard'); setSidebarOpen(false); }}>
+                  👮 <span>Assigned Tasks</span>
                 </a>
               </div>
             )}
@@ -367,6 +386,10 @@ function App() {
             <AdminDashboard toggleAddAdminModal={toggleAddAdminModal} />
           )}
 
+          {currentView === 'officerDashboard' && (
+            <OfficerDashboard />
+          )}
+
           {currentView === "ads" && <AdminAds />}
 
           {currentView === 'analytics' && (
@@ -407,7 +430,7 @@ function App() {
             />
           )}
           {currentView === 'settings' && (
-            <Settings theme={theme} toggleTheme={toggleTheme} />
+            <Settings theme={theme} toggleTheme={toggleTheme} user={user} />
           )}
 
           {currentView === 'helpline' && (

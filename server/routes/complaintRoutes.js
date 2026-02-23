@@ -4,7 +4,9 @@ import {
   uploadTestImage,
   getAllComplaints,
   getMyComplaints,
+  getOfficerComplaints,
   updateComplaint,
+  sendComplaintClosureOtp,
   closeComplaintWithOtp,
   getComplaintStats,
   getComplaintsByCategory,
@@ -18,6 +20,7 @@ const router = express.Router();
 
 router.route('/complaints').get(isAuthenticatedUser, authorizeRoles('admin'), getAllComplaints);
 router.route('/my-complaints').get(isAuthenticatedUser, getMyComplaints);
+router.route('/officer/complaints').get(isAuthenticatedUser, authorizeRoles('officer'), getOfficerComplaints);
 router.route('/complaints/trending').get(getTrendingIssues);
 router.route('/complaint').post(isAuthenticatedUser, upload.array('images', 5), createComplaint); // Re-added upload.array
 router.route('/upload/test').post(isAuthenticatedUser, upload.single('image'), uploadTestImage); // Re-added route for testing image upload
@@ -26,9 +29,11 @@ router.route('/upload/test').post(isAuthenticatedUser, upload.single('image'), u
 router.put(
   '/complaint/:id',
   isAuthenticatedUser,
-  authorizeRoles('admin'),
+  authorizeRoles('admin', 'officer'),
+  upload.array('resolutionImages', 5),
   updateComplaint
 );
+router.route('/complaint/:id/send-close-otp').post(isAuthenticatedUser, authorizeRoles('admin'), sendComplaintClosureOtp);
 router.route('/complaint/:id/close').put(isAuthenticatedUser, authorizeRoles('admin'), upload.array('resolutionImages', 5), closeComplaintWithOtp);
 
 router.route('/complaints/category-distribution').get(isAuthenticatedUser, getComplaintsByCategory);

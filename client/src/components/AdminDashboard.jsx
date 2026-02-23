@@ -352,13 +352,15 @@ const AdminDashboard = ({ toggleAddAdminModal }) => {
                         <td>{user._id}</td>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
-                        <td>{user.role}</td>
+                        <td>{user.role === 'officer' && user.officerLevel ? `Officer (${user.officerLevel})` : user.role}</td>
                         <td>{user.isSuspended ? 'Suspended' : 'Active'}</td>
                         <td>
-                          <button className="btn btn-danger" onClick={() => handleDeleteUser(user._id)}>Delete</button>
-                          <button className={`btn ${user.isSuspended ? 'btn-success' : 'btn-warning'}`} onClick={() => handleSuspendUser(user._id, user.isSuspended)}>
-                            {user.isSuspended ? 'Unsuspend' : 'Suspend'}
-                          </button>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button className="btn btn-danger" onClick={() => handleDeleteUser(user._id)}>Delete</button>
+                            <button className={`btn ${user.isSuspended ? 'btn-success' : 'btn-warning'}`} onClick={() => handleSuspendUser(user._id, user.isSuspended)}>
+                              {user.isSuspended ? 'Unsuspend' : 'Suspend'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

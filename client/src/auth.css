@@ -112,7 +112,7 @@
 
 /* Resize auth card inside modal */
 .modal-content.auth-modal .auth-card {
-  width: 100%;
+  width: 85%;
   max-width: 360px;
   padding: 28px 26px;
   margin: auto;
