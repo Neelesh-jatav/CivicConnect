@@ -211,10 +211,16 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
 
 // Logout user
 export const logout = catchAsyncErrors(async (req, res, next) => {
+  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('token', null, {
     expires: new Date(Date.now()),
     httpOnly: true,
+    secure: isProduction, // Must match login cookie options
+    sameSite: isProduction ? 'none' : 'lax', // Must match login cookie options
+    path: '/', // Must match login cookie options
   });
+
+  console.log('🚪 Logout: Token cookie cleared with options:', { secure: isProduction, sameSite: isProduction ? 'none' : 'lax', httpOnly: true, path: '/' });
 
   res.status(200).json({
     success: true,

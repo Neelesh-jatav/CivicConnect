@@ -8,6 +8,8 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import Modal from './components/Modal';
 import RaiseComplaint from './components/RaiseComplaint';
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '');
 import Notifications from './Notifications';
 import Settings from './components/Settings';
 
@@ -62,7 +64,7 @@ function App() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await fetch('http://localhost:5002/api/v1/me', {
+        const res = await fetch(`${API_BASE_URL}/api/v1/me`, {
           credentials: 'include',
         });
 

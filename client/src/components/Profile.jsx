@@ -9,6 +9,8 @@ import Modal from './Modal';
 import TrendingIssues from './TrendingIssues';
 import './TrendingIssues.css';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '');
+
 const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }) => {
   const [activeTab, setActiveTab] = useState('complaints');
   const [statistics, setStatistics] = useState(null);
@@ -52,7 +54,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
     if (activeTab === 'connections') {
       const fetchConnections = async () => {
         try {
-          const response = await fetch('http://localhost:5002/api/v1/me', {
+          const response = await fetch(`${API_BASE_URL}/api/v1/me`, {
             credentials: 'include',
           });
           const data = await response.json();
@@ -404,7 +406,7 @@ const Profile = ({ user, setCurrentView, onMediaUploadSuccess, onProfileUpdate }
     }
 
     try {
-      const response = await fetch('http://localhost:5002/api/v1/me/update', {
+      const response = await fetch(`${API_BASE_URL}/api/v1/me/update`, {
         method: 'PUT',
         body: formData,
         credentials: 'include',
