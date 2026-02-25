@@ -1,10 +1,10 @@
 import express from 'express';
 import { createSponsor, getSponsors, updateSponsor, deleteSponsor } from '../controllers/sponsorController.js';
-import { isAuthenticatedUser, authorizeRoles } from '../middlewares/auth.js';
+import { isAuthenticatedUser, authorizeRoles, blockDemoWriteAccess } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-const isAdmin = [isAuthenticatedUser, authorizeRoles('admin')];
+const isAdmin = [isAuthenticatedUser, blockDemoWriteAccess, authorizeRoles('admin')];
 
 router.route('/admin/sponsors')
   .post(isAdmin, createSponsor)

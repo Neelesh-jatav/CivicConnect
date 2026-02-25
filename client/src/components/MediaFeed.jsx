@@ -12,7 +12,7 @@ const MediaFeed = () => {
 
     const fetchMedia = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/media-feed`);
+        const response = await fetch(`${API_BASE_URL}/api/v1/media/feed`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

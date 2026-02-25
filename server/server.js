@@ -22,8 +22,24 @@ const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || 'ht
   .map((origin) => origin.trim())
   .filter(Boolean)
 
-// Connect to database
-connectDB();
+const defaultAllowedOrigins = [
+  'http://localhost:5173',
+  'https://civic-connect-steel.vercel.app',
+]
+
+const resolvedAllowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...allowedOrigins]))
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) {
+    return true
+  }
+
+  if (resolvedAllowedOrigins.includes(origin)) {
+    return true
+  }
+
+  return /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)
+}
 
 // Body parser
 app.use(express.json());
@@ -31,20 +47,22 @@ app.use(express.json());
 // Cookie parser
 app.use(cookieParser());
 
-// Enable CORS
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true)
       return
     }
     callback(new Error(`CORS blocked for origin: ${origin}`))
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Set-Cookie'], // Allow browser to see Set-Cookie header
-}));
+}
+
+// Enable CORS
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Handle URL-encoded data
 app.use(express.urlencoded({ extended: true }));
@@ -76,7 +94,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const startServer = async () => {
+  try {
+    await connectDB()
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+  } catch (error) {
+    console.error(`❌ Failed to start server: ${error.message}`)
+    process.exit(1)
+  }
+}
+
+startServer()

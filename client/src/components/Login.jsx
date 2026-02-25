@@ -3,6 +3,23 @@ import { toast } from 'react-toastify';
 import '../App.css';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002').replace(/\/+$/, '');
+const DEMO_ACCOUNTS = [
+  {
+    label: 'Demo User',
+    email: 'laptopdesktopkumar@gmail.com',
+    password: '12345678',
+  },
+  {
+    label: 'Demo Admin',
+    email: 'paradoxoptimus780@gmail.com',
+    password: '12345678',
+  },
+  {
+    label: 'Demo Officer',
+    email: 'johnone1one2025@gmail.com',
+    password: '12345678',
+  },
+];
 
 const Login = ({ onLoginSuccess, onClose }) => {
   const [view, setView] = useState('login'); // 'login', 'forgot', 'reset'
@@ -16,30 +33,45 @@ const Login = ({ onLoginSuccess, onClose }) => {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const loginHandler = async (e) => {
-    e.preventDefault();
-
+  const performLogin = async (loginEmail, loginPassword, label = '') => {
+    setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include', // IMPORTANT: Send and receive cookies with the request
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        credentials: 'include',
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        onLoginSuccess(data.user); // Pass the user data to the success handler
+        if (label) {
+          toast.info(`${label} logged in (read-only mode)`);
+        }
+        onLoginSuccess(data.user);
       } else {
         toast.error(data.message || 'Invalid credentials');
       }
     } catch (error) {
       console.error('Error during login:', error);
       toast.error('An error occurred during login.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const loginHandler = async (e) => {
+    e.preventDefault();
+    await performLogin(email, password);
+  };
+
+  const handleDemoLogin = async (demoAccount) => {
+    setEmail(demoAccount.email);
+    setPassword(demoAccount.password);
+    await performLogin(demoAccount.email, demoAccount.password, demoAccount.label);
   };
 
   const forgotPasswordHandler = async (e) => {
@@ -175,9 +207,27 @@ const Login = ({ onLoginSuccess, onClose }) => {
           />
 
           <button type="submit" className="auth-btn">
-            Sign In →
+            {loading ? 'Signing in...' : 'Sign In →'}
           </button>
         </form>
+
+        <div className="demo-login-section">
+          <p className="demo-login-title">Quick Demo Access</p>
+          <div className="demo-login-buttons">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                className="demo-login-btn"
+                onClick={() => handleDemoLogin(account)}
+                disabled={loading}
+              >
+                {account.label}
+              </button>
+            ))}
+          </div>
+          <p className="demo-login-note">Demo accounts are read-only.</p>
+        </div>
 
         <div className="auth-links">
           <span onClick={() => setView('forgot')}>Forgot Password?</span>
