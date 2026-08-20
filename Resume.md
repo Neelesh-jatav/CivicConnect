@@ -195,6 +195,48 @@ await user.save();
 
 **Security points:** OTPs expire, passwords are hashed, JWT secrets stay in environment variables, and the authentication cookie is HTTP-only so browser JavaScript cannot read it directly.
 
+### Small registration and login example
+
+The route definitions are in `server/routes/authRoutes.js`:
+
+```js
+router.post('/register', upload.single('avatar'), registerUser);
+router.post('/login', loginUser);
+router.get('/me', isAuthenticatedUser, getMe);
+```
+
+The controller validates the user, hashes the password through the Mongoose pre-save hook, and sends a JWT after login:
+
+```js
+// server/controllers/authController.js
+export const loginUser = catchAsyncErrors(async (req, res, next) => {
+	const { email, password } = req.body;
+	const user = await User.findOne({ email }).select('+password');
+
+	if (!user || !(await user.comparePassword(password))) {
+		return next(new ErrorHandler('Invalid email or password', 401));
+	}
+
+	sendToken(user, 200, res);
+});
+```
+
+The registration request can be sent as `multipart/form-data` when it includes an avatar:
+
+```js
+const formData = new FormData();
+formData.append('name', name);
+formData.append('email', email);
+formData.append('password', password);
+formData.append('avatar', avatarFile);
+
+await fetch('/api/v1/register', {
+	method: 'POST',
+	body: formData,
+	credentials: 'include',
+});
+```
+
 ## 8. Complaint Form and CRUD Operations
 
 CRUD means **Create, Read, Update, and Delete**.
@@ -216,6 +258,55 @@ router.route('/complaint').post(
 ```
 
 This first checks identity, blocks read-only demo accounts, parses the uploaded files, and finally calls the controller. `server/controllers/complaintController.js` uploads evidence to Cloudinary and stores the resulting URLs in the complaint document.
+
+### Small complaint form example
+
+The React form sends text fields and images using `FormData`. The field name `images` matches `upload.array('images', 5)` in the backend:
+
+```jsx
+// client/src/components/RaiseComplaint.jsx
+const submitComplaint = async (event) => {
+	event.preventDefault();
+	const formData = new FormData(event.currentTarget);
+
+	await fetch('/api/v1/complaint', {
+		method: 'POST',
+		body: formData,
+		credentials: 'include',
+	});
+};
+
+return (
+	<form onSubmit={submitComplaint} encType="multipart/form-data">
+		<input name="title" placeholder="Complaint title" required />
+		<textarea name="description" placeholder="Describe the issue" required />
+		<select name="category" required>
+			<option value="Road">Road</option>
+			<option value="Water">Water</option>
+			<option value="Electricity">Electricity</option>
+		</select>
+		<input name="state" required />
+		<input name="district" required />
+		<input name="pincode" pattern="[0-9]{6}" required />
+		<input name="images" type="file" multiple accept="image/*" />
+		<button type="submit">Submit complaint</button>
+	</form>
+);
+```
+
+### Small authentication middleware example
+
+```js
+// server/middlewares/auth.js
+const { token } = req.cookies;
+if (!token) {
+	return next(new ErrorHandler('Login first to access this resource.', 401));
+}
+
+const decoded = jwt.verify(token, process.env.JWT_SECRET);
+req.user = await User.findById(decoded.id);
+next();
+```
 
 ## 9. Cloudinary Media Handling
 
@@ -273,6 +364,52 @@ export default connectDB;
 ```
 
 The server connects to MongoDB before calling `app.listen`, so the application does not accept requests before its data layer is ready. Mongoose models such as `server/models/User.js`, `Complaint.js`, and `Media.js` provide schema validation and database operations.
+
+### Database schemas
+
+The following is a shortened interview version of the schemas in `server/models/User.js` and `server/models/Complaint.js`:
+
+```js
+// server/models/User.js
+const userSchema = new mongoose.Schema({
+	name: String,
+	email: { type: String, required: true, unique: true },
+	password: { type: String, required: true, select: false },
+	role: { type: String, enum: ['user', 'admin', 'officer'], default: 'user' },
+	isVerified: { type: Boolean, default: false },
+	otp: String,
+	otpExpire: Date,
+});
+
+userSchema.pre('save', async function (next) {
+	if (this.isModified('password')) {
+		this.password = await bcrypt.hash(this.password, 10);
+	}
+	next();
+});
+```
+
+```js
+// server/models/Complaint.js
+const complaintSchema = new mongoose.Schema({
+	title: { type: String, required: true, trim: true, maxLength: 100 },
+	description: { type: String, required: true },
+	category: {
+		type: String,
+		enum: ['Road', 'Electricity', 'Water', 'Accident', 'Disaster', 'Custom'],
+		required: true,
+	},
+	state: { type: String, required: true },
+	district: { type: String, required: true },
+	pincode: { type: String, match: /^\d{6}$/, required: true },
+	status: { type: String, default: 'Pending' },
+	user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+	images: [{ public_id: String, url: String }],
+	createdAt: { type: Date, default: Date.now },
+});
+```
+
+The `user` field creates a reference from each complaint to its submitting user. The `images` array stores Cloudinary identifiers and URLs, while the actual files remain in Cloudinary.
 
 ## 11. Server Creation and Middleware
 
