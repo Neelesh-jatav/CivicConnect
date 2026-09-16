@@ -1937,6 +1937,36 @@ That's enough.
 
 Don't spend time making the UI beautiful yet.
 
+5. How do we actually run the frontend?
+
+You have two options.
+
+Easiest for now: VS Code Live Server
+
+If you're using VS Code:
+
+Open the frontend folder.
+Install the Live Server extension.
+Right-click index.html.
+Select Open with Live Server.
+
+It should open something like:
+
+http://127.0.0.1:5500
+
+Your setup is now:
+
+FRONTEND
+http://127.0.0.1:5500
+        │
+        │ fetch()
+        ↓
+BACKEND
+http://localhost:5000
+        │
+        ↓
+MONGODB
+
 ---
 
 # 44. Complete Request Flow
